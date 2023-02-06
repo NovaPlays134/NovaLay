@@ -43,15 +43,15 @@ local auto_update_config = {
     silent_updates=true,
     dependencies={
         {
-            name="topborder",
-            source_url="https://raw.githubusercontent.com/NovaPlays134/NovaLay/main/resources/NovaLay/topbarder.png",
+            name="background",
+            source_url="https://raw.githubusercontent.com/NovaPlays134/NovaLay/main/resources/NovaLay/mainbackground.png",
             script_relpath="resources/NovaMeter/NovaMeterLogo.png",
             check_interval=default_check_interval,
         },
 
 		{
-            name="background",
-            source_url="https://raw.githubusercontent.com/NovaPlays134/NovaLay/main/resources/NovaLay/mainbackground.png",
+            name="topborder",
+            source_url="https://raw.githubusercontent.com/NovaPlays134/NovaLay/main/resources/NovaLay/topborder.png",
             script_relpath="resources/NovaMeter/background.png",
             check_interval=default_check_interval,
         }
