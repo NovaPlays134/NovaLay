@@ -45,14 +45,14 @@ local auto_update_config = {
         {
             name="background",
             source_url="https://raw.githubusercontent.com/NovaPlays134/NovaLay/main/resources/NovaLay/mainbackground.png",
-            script_relpath="resources/NovaMeter/NovaMeterLogo.png",
+            script_relpath="resources/NovaLay/mainbackground.png",
             check_interval=default_check_interval,
         },
 
 		{
             name="topborder",
             source_url="https://raw.githubusercontent.com/NovaPlays134/NovaLay/main/resources/NovaLay/topborder.png",
-            script_relpath="resources/NovaMeter/background.png",
+            script_relpath="resources/NovaMeter/topborder.png",
             check_interval=default_check_interval,
         }
     }
