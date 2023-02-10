@@ -520,7 +520,7 @@ function draw_info_text(text, infotext, posX, posY, distance, hight, size1, size
 end
 
 function get_prostitutes_solicited(pid)
-    return memory.read_int(memory.script_global(1853348 + 1 + (pid * 834) + 205 + 54))
+    return memory.read_int(memory.script_global(1853910 + 1 + (pid * 862) + 205 + 54))
 end
 
 function green_or_red(yes_no)
@@ -693,7 +693,7 @@ util.create_tick_handler(function()
             --bank money--
             draw_info_text("Bank:", "$" .. bankmoney, GENERAL_textposX, GENERAL_textposY + 0.1, 192, 100, 0.45, 0.44, money_color(players.get_bank(focusedplayer)))
             --hookers--
-            draw_info_text("Hookers:", hookers, GENERAL_textposX, GENERAL_textposY + 0.12, 192, 100, 0.45, 0.44)
+            draw_info_text("whore's:", hookers, GENERAL_textposX, GENERAL_textposY + 0.12, 192, 100, 0.45, 0.44)
             --tags--
             draw_info_text("Tags:", tags, tagsposX, tagsposY, 22, 20, 0.45, 0.44)
         end
