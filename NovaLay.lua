@@ -308,10 +308,10 @@ local backgroundposX, backgroundposY = defposX, defposY
 local topbarposX, topbarposY = defposX, defposY+0.0005
 local mapborderposX, mapborderposY = defposX+0.1911, defposY+0.0005
 local mapbackgroundposX, mapbackgroundposY = defposX+0.1911, defposY
-local nameposX, nameposY = defposX-0.112, defposY-0.035
+local nameposX, nameposY = defposX-0.092, defposY-0.028
 local PLAYERposX, PLAYERposY = defposX-0.050, defposY-0.020
 local PLAYERS_textposX, PLAYERS_textposY = defposX-0.050, defposY+0.010
-local CHARACTERposX, CHARACTERposY = defposX-0.182, defposY-0.020
+local CHARACTERposX, CHARACTERposY = defposX-0.190, defposY-0.020
 local CHARACTER_textposX, CHARACTER_textposY = defposX-0.195, defposY+0.010
 local GENERALposX, GENERALposY = defposX-0.117, defposY+0.200
 local GENERAL_textposX, GENERAL_textposY = defposX-0.195, defposY+0.220
@@ -325,10 +325,10 @@ local posXslider = menu.slider(menu.my_root(), "Speedometer pos X", {}, "Default
     topbarposX = x/1000
     mapborderposX = x/1000 + 0.1911
     mapbackgroundposX = x/1000 + 0.1911
-    nameposX = x/1000 - 0.112
+    nameposX = x/1000 - 0.092
     PLAYERposX = x/1000 - 0.050
     PLAYERS_textposX = x/1000 - 0.050
-    CHARACTERposX = x/1000 - 0.182
+    CHARACTERposX = x/1000 - 0.190
     CHARACTER_textposX = x/1000 - 0.195
     GENERALposX = x/1000 - 0.117
     GENERAL_textposX = x/1000 - 0.195
@@ -352,7 +352,7 @@ local posYslider = menu.slider(menu.my_root(), "Speedometer pos Y", {}, "Default
     topbarposY = y/1000 + 0.0005
     mapborderposY = y/1000 +0.0005
     mapbackgroundposY = y/1000
-    nameposY = y/1000 - 0.035
+    nameposY = y/1000 - 0.028
     PLAYERposY = y/1000 - 0.020
     PLAYERS_textposY = y/1000 + 0.010
     CHARACTERposY = y/1000 - 0.020
@@ -593,7 +593,7 @@ util.create_tick_handler(function()
                 local godmode = bool(players.is_godmode(focusedplayer))
                 local mod_or_ad = bool(players.is_marked_as_modder_or_admin(focusedplayer))
                 local atk_you = bool(players.is_marked_as_attacker(focusedplayer))
-                local otr = bool(players.is_otr(focusedplayer))
+                local otr = bool(players.is_otr(focusedplayer)) 
                 local host_queue = queuecheck(players.get_host_queue_position(focusedplayer))
                 local org_type = org(players.get_org_type(focusedplayer))
                 local distance = distance(mypos, playerpos)
@@ -634,8 +634,7 @@ util.create_tick_handler(function()
             end
         end
             --name--
-            directx.draw_text(nameposX, nameposY, name, ALIGN_TOP_LEFT, 0.45, colors.subhead, true)
-
+            directx.draw_text(nameposX, nameposY, name, ALIGN_CENTRE, 0.45, colors.subhead, true)
 
             --PLAYER--
             directx.draw_text(PLAYERposX, PLAYERposY, "Player Info", ALIGN_TOP_LEFT, 0.5, colors.subhead, true)
