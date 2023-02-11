@@ -629,7 +629,7 @@ util.create_tick_handler(function()
             local blip_posX = blipposX + 0.0161603566 + ((playerpos.x + 3745)/8316) * mapsizeX
             local blip_posY = blipposY + (1 - (playerpos.y + 4427)/12689) * mapsizeY
             local heading = ENTITY.GET_ENTITY_HEADING(focusedped)
-            if blip_posX <= 0.39064228813 and blip_posX >= 0.2383465800 and blip_posY >= 0.103608880 and blip_posY <= 0.530602210 then
+            if blip_posX <= mapposX+0.07948270113 and blip_posX >= mapposX-0.072813007 and blip_posY >= mapposY-0.20722706 and blip_posY <= mapposY+0.21976627 then
                 directx.draw_texture(blip, blipsize, blipsize, 0.5, 0.5, blip_posX, blip_posY, (360 - heading)/360, colors.blip)
             end
         end
