@@ -70,6 +70,13 @@ local auto_update_config = {
             check_interval=default_check_interval,
         },
 
+        {
+            name="Playerblip",
+            source_url="https://raw.githubusercontent.com/NovaPlays134/NovaLay/main/resources/NovaLay/Playerblip.png",
+            script_relpath="resources/NovaLay/Playerblip.png",
+            check_interval=default_check_interval,
+        },
+
 		{
             name="topborder",
             source_url="https://raw.githubusercontent.com/NovaPlays134/NovaLay/main/resources/NovaLay/topborder.png",
@@ -97,6 +104,7 @@ local mapborder = directx.create_texture(resources_dir .. "topbordermap.png")
 local mapback = directx.create_texture(resources_dir .. "mapbackground.png")
 local map = directx.create_texture(resources_dir .. "GTA_Map.png")
 local blip = directx.create_texture(resources_dir .. "Blip.png")
+local Playerblip = directx.create_texture(resources_dir .. "Playerblip.png")
 
 ----------
 --TABLES--
@@ -112,7 +120,11 @@ local colors = {
         no_color = {["r"] = 1, ["g"] = 0, ["b"] = 0, ["a"] = 1.0}, --red
         orange = {["r"] = 1, ["g"] = 138/255, ["b"] = 31/255, ["a"] = 1.0},
         map = {r = 1, g = 1, b = 1, a = 0.75}, --white
-        blip = {["r"] = 1, ["g"] = 1, ["b"] = 1, ["a"] = 1.0} --white
+        blip = {["r"] = 1, ["g"] = 1, ["b"] = 1, ["a"] = 1.0}, --white
+        health_bar = {r = 57/255, g = 102/255, b = 57/255, a = 150/255},
+        armour_bar = {r = 35/255, g = 68/255, b = 85.5/255, a = 150/255},
+        health_bar_text = {r = 99/255, g = 175/255, b = 99/255, a = 1.0},
+        armor_bar_text = {r = 62/255, g = 118/255, b = 147/255, a = 1.0}
 }
 
 --languages--
@@ -316,8 +328,12 @@ local CHARACTER_textposX, CHARACTER_textposY = defposX-0.195, defposY+0.010
 local GENERALposX, GENERALposY = defposX-0.117, defposY+0.200
 local GENERAL_textposX, GENERAL_textposY = defposX-0.195, defposY+0.220
 local tagsposX, tagsposY = defposX-0.195, defposY+0.375
-local mapposX, mapposY = defposX+0.096159587, defposY+0.18583594
-local blipposX, blipposY = defposX+0.0079167, defposY-0.00740741
+local mapposX, mapposY = defposX+0.096159587, defposY+0.16583594
+local blipposX, blipposY = defposX+0.0079167, defposY-0.02740741
+local health_barX, barY = defposX+0.025, defposY+0.385
+local armor_barX = defposX+0.1
+local health_bartxtX, bar_txtY = defposX+0.06, defposY+0.377
+local armor_bartxtX = defposX+0.135
 
 --x--
 local posXslider = menu.slider(menu.my_root(), "Speedometer pos X", {}, "Default value is 215", 1, 1000, defposX*1000, 1, function(x)
@@ -335,6 +351,10 @@ local posXslider = menu.slider(menu.my_root(), "Speedometer pos X", {}, "Default
     tagsposX = x/1000 - 0.195
     mapposX = x/1000 + 0.096159587
     blipposX = x/1000 + 0.0079167
+    health_barX = x/1000 + 0.025
+    armor_barX = x/1000 + 0.1
+    health_bartxtX = x/1000 + 0.06
+    armor_bartxtX = x/1000 + 0.135
 end)
 
 posXslider_show = false
@@ -360,8 +380,10 @@ local posYslider = menu.slider(menu.my_root(), "Speedometer pos Y", {}, "Default
     GENERALposY = y/1000 + 0.200
     GENERAL_textposY = y/1000 + 0.220
     tagsposY = y/1000 + 0.375
-    mapposY = y/1000 + 0.18583594
-    blipposY = y/1000 - 0.00740741
+    mapposY = y/1000 + 0.16583594
+    blipposY = y/1000 - 0.02740741
+    barY = y/1000 + 0.385
+    bar_txtY = y/1000 + 0.377
 end)
 
 posYslider_show = false
@@ -385,6 +407,20 @@ end)
 
 menu.on_blur(blipsizeslider, function()
     blipsizeslider_show = false
+end)
+
+local selfblip = true
+local yourblip = menu.toggle(menu.my_root(), "Show you on map", {}, "", function(on)
+    selfblip = on
+end, true)
+
+yourblip_show = false
+menu.on_focus(yourblip, function()
+    yourblip_show = true
+end)
+
+menu.on_blur(yourblip, function()
+    yourblip_show = false
 end)
 
 --change measurement--
@@ -543,21 +579,20 @@ function money_color(money)
             return colors.no_color
         elseif money >= 10000 and money < 100000 then
             return colors.orange
-        elseif money >= 100000 and money < 100000000 then
+        elseif money >= 100000 and money < 10000000000 then
             return colors.yes_color
         end
     end
 end
 
-------------------------
 --DRAWING/GETTING INFO--
 ------------------------
 util.create_tick_handler(function()
     if not util.is_session_transition_active() then
         local focusedplayer = players.get_focused()
-        if focusedplayer[1] ~= nil and menu.is_open() or (color_show_list or value_show_list or color_show_topbar or color_show_back or color_show_sub or color_show_label or color_show_high or color_show_map or color_show_blip or change_bool_show or change_money_show or change_unit_show or posXslider_show or posYslider_show or blipsizeslider_show or show_map_show) then
+        if focusedplayer[1] ~= nil and menu.is_open() or (color_show_list or value_show_list or color_show_topbar or color_show_back or color_show_sub or color_show_label or color_show_high or color_show_map or color_show_blip or change_bool_show or change_money_show or change_unit_show or posXslider_show or posYslider_show or blipsizeslider_show or show_map_show or yourblip_show) then
 
-            if (color_show_list or value_show_list or color_show_topbar or color_show_back or color_show_sub or color_show_label or color_show_high or color_show_map or color_show_blip or change_bool_show or change_money_show or change_unit_show or posXslider_show or posYslider_show or blipsizeslider_show or show_map_show) then
+            if (color_show_list or value_show_list or color_show_topbar or color_show_back or color_show_sub or color_show_label or color_show_high or color_show_map or color_show_blip or change_bool_show or change_money_show or change_unit_show or posXslider_show or posYslider_show or blipsizeslider_show or show_map_show or yourblip_show) then
                 focusedplayer = players.user()
             else
                 focusedplayer = focusedplayer[1]
@@ -629,9 +664,27 @@ util.create_tick_handler(function()
             local blip_posX = blipposX + 0.0161603566 + ((playerpos.x + 3745)/8316) * mapsizeX
             local blip_posY = blipposY + (1 - (playerpos.y + 4427)/12689) * mapsizeY
             local heading = ENTITY.GET_ENTITY_HEADING(focusedped)
+            --playerblip--
+            local playerblip_posX = blipposX + 0.0161603566 + ((mypos.x + 3745)/8316) * mapsizeX
+            local playerblip_posY = blipposY + (1 - (mypos.y + 4427)/12689) * mapsizeY
             if blip_posX <= mapposX+0.07948270113 and blip_posX >= mapposX-0.072813007 and blip_posY >= mapposY-0.20722706 and blip_posY <= mapposY+0.21976627 then
-                directx.draw_texture(blip, blipsize, blipsize, 0.5, 0.5, blip_posX, blip_posY, (360 - heading)/360, colors.blip)
+                    directx.draw_texture(blip, blipsize, blipsize, 0.5, 0.5, blip_posX, blip_posY, (360 - heading)/360, colors.blip)
+                if selfblip then
+                    if distance ~= "This is you" then
+                        directx.draw_texture(Playerblip, blipsize, blipsize, 0.5, 0.5, playerblip_posX, playerblip_posY, 0, colors.blip)
+                    end
+                end
             end
+            --healthbar--
+            directx.draw_rect(health_barX, barY, 0.07, 0.015, colors.health_bar)
+            local second_health_bar_color = {r = colors.health_bar.r, g = colors.health_bar.g, b = colors.health_bar.b, a = colors.health_bar.a/2}
+            directx.draw_rect(health_barX, barY, (health / maxhealth) * (0.31 - 0.24), 0.015, second_health_bar_color) --i fr got the formula from chatgpt xD
+            directx.draw_text(health_bartxtX, bar_txtY, health .. "/" .. maxhealth, ALIGN_CENTRE, 0.42, colors.health_bar_text, true)
+            --armorbar--
+            local second_armor_bar_color = {r = colors.armour_bar.r, g = colors.armour_bar.g, b = colors.armour_bar.b, a = colors.armour_bar.a/2}
+            directx.draw_rect(armor_barX, barY, 0.07, 0.015, colors.armour_bar)
+            directx.draw_rect(armor_barX, barY, (armor / maxarmor) * (0.385 - 0.315), 0.015, second_armor_bar_color)
+            directx.draw_text(armor_bartxtX, bar_txtY, armor .. "/" .. maxarmor, ALIGN_CENTRE, 0.42, colors.armor_bar_text, true)
         end
             --name--
             directx.draw_text(nameposX, nameposY, name, ALIGN_CENTRE, 0.45, colors.subhead, true)
