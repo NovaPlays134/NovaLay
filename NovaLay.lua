@@ -585,6 +585,43 @@ function money_color(money)
     end
 end
 
+
+function change_posY(unit1, unit2)--just some silly fucked function also dont mind this remember im bored asf and want to waste my time so yeah lemme use this without any problems and it works fine so yeah
+if unit1 ~= "notting" then
+    local size = string.len(unit1)
+        if size == 1 then
+            return 192.5
+        elseif size == 2 then
+            return 190
+        elseif size == 3 then
+            return 189
+        elseif size == 4 then
+            return 186
+        elseif size == 5 then
+            return 185
+        elseif size >= 6 then
+            return 183
+        else
+            return 192
+        end
+else
+    local size = string.len(unit2)
+        if size == 1 then
+            return 195
+        elseif size == 2 then
+            return 193
+        elseif size == 3 then
+            return 191
+        elseif size == 4 then
+            return 189
+        elseif size == 5 then
+            return 188
+        else
+            return 192
+        end
+end
+end
+
 --DRAWING/GETTING INFO--
 ------------------------
 util.create_tick_handler(function()
@@ -640,7 +677,7 @@ util.create_tick_handler(function()
                 local weapon =  get_weapon_name_from_hash(weapon_hash)
                 local host = bool(focusedplayer == players.get_host())
                 local script_host = bool(focusedplayer == players.get_script_host())
-                local hookers = get_prostitutes_solicited(focusedplayer)
+                local hookers = formatMoney(get_prostitutes_solicited(focusedplayer))
             --topbar--
 		    directx.draw_texture(topborder, 0.12, 0.12, 0.88, 0.125, topbarposX, topbarposY, 0.0, colors.topbar)
             --background--
@@ -740,13 +777,13 @@ util.create_tick_handler(function()
             --mod or admin--
             draw_info_text("Mod or Admin:", mod_or_ad, GENERAL_textposX, GENERAL_textposY + 0.04, 192, 100, 0.45, 0.44, green_or_red(mod_or_ad))
             --total money--
-            draw_info_text("Total:", "$" .. totalmoney, GENERAL_textposX, GENERAL_textposY + 0.06, 192, 100, 0.45, 0.44, money_color(players.get_money(focusedplayer)))
+            draw_info_text("Total:", "$" .. totalmoney, GENERAL_textposX, GENERAL_textposY + 0.06, change_posY(totalmoney), 100, 0.45, 0.44, money_color(players.get_money(focusedplayer)))
             --walled money--
-            draw_info_text("Wallet:", "$" .. walletmoney, GENERAL_textposX, GENERAL_textposY + 0.08, 192, 100, 0.45, 0.44, money_color(players.get_wallet(focusedplayer)))
+            draw_info_text("Wallet:", "$" .. walletmoney, GENERAL_textposX, GENERAL_textposY + 0.08, change_posY(walletmoney), 100, 0.45, 0.44, money_color(players.get_wallet(focusedplayer)))
             --bank money--
-            draw_info_text("Bank:", "$" .. bankmoney, GENERAL_textposX, GENERAL_textposY + 0.1, 192, 100, 0.45, 0.44, money_color(players.get_bank(focusedplayer)))
+            draw_info_text("Bank:", "$" .. bankmoney, GENERAL_textposX, GENERAL_textposY + 0.1, change_posY(bankmoney), 100, 0.45, 0.44, money_color(players.get_bank(focusedplayer)))
             --hookers--
-            draw_info_text("whore's:", hookers, GENERAL_textposX, GENERAL_textposY + 0.12, 192, 100, 0.45, 0.44)
+            draw_info_text("whore's:", hookers, GENERAL_textposX, GENERAL_textposY + 0.12, change_posY("notting", hookers), 100, 0.45, 0.44)
             --tags--
             draw_info_text("Tags:", tags, tagsposX, tagsposY, 22, 20, 0.45, 0.44)
         end
