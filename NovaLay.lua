@@ -316,16 +316,16 @@ end)
 
 --position-- this is messy asf but ig its the only way by how i coded the script
 local defposX, defposY = 0.215, 0.125
-local backgroundposX, backgroundposY = defposX, defposY
-local topbarposX, topbarposY = defposX, defposY+0.0005
-local mapborderposX, mapborderposY = defposX+0.1911, defposY+0.0005
-local mapbackgroundposX, mapbackgroundposY = defposX+0.1911, defposY
+local backgroundposX, backgroundposY = defposX-0.09, defposY+0.195
+local topbarposX, topbarposY = defposX-0.09, defposY+0.1955
+local mapborderposX, mapborderposY = defposX+0.10106, defposY+0.1955
+local mapbackgroundposX, mapbackgroundposY = defposX+0.10106, defposY+0.195
 local nameposX, nameposY = defposX-0.092, defposY-0.028
-local PLAYERposX, PLAYERposY = defposX-0.050, defposY-0.020
+local PLAYERposX, PLAYERposY = defposX-0.025, defposY-0.010
 local PLAYERS_textposX, PLAYERS_textposY = defposX-0.050, defposY+0.010
-local CHARACTERposX, CHARACTERposY = defposX-0.190, defposY-0.020
+local CHARACTERposX, CHARACTERposY = defposX-0.165, defposY-0.010
 local CHARACTER_textposX, CHARACTER_textposY = defposX-0.195, defposY+0.010
-local GENERALposX, GENERALposY = defposX-0.117, defposY+0.200
+local GENERALposX, GENERALposY = defposX-0.092, defposY+0.208
 local GENERAL_textposX, GENERAL_textposY = defposX-0.195, defposY+0.220
 local tagsposX, tagsposY = defposX-0.195, defposY+0.375
 local mapposX, mapposY = defposX+0.096159587, defposY+0.16583594
@@ -337,16 +337,16 @@ local armor_bartxtX = defposX+0.135
 
 --x--
 local posXslider = menu.slider(menu.my_root(), "Speedometer pos X", {}, "Default value is 215", 1, 1000, defposX*1000, 1, function(x)
-    backgroundposX = x/1000
-    topbarposX = x/1000
-    mapborderposX = x/1000 + 0.1911
-    mapbackgroundposX = x/1000 + 0.1911
+    backgroundposX = x/1000 - 0.09
+    topbarposX = x/1000 - 0.09
+    mapborderposX = x/1000 + 0.10106
+    mapbackgroundposX = x/1000 + 0.10106
     nameposX = x/1000 - 0.092
-    PLAYERposX = x/1000 - 0.050
+    PLAYERposX = x/1000 - 0.025
     PLAYERS_textposX = x/1000 - 0.050
-    CHARACTERposX = x/1000 - 0.190
+    CHARACTERposX = x/1000 - 0.165
     CHARACTER_textposX = x/1000 - 0.195
-    GENERALposX = x/1000 - 0.117
+    GENERALposX = x/1000 - 0.092
     GENERAL_textposX = x/1000 - 0.195
     tagsposX = x/1000 - 0.195
     mapposX = x/1000 + 0.096159587
@@ -368,16 +368,16 @@ end)
 
 --y--
 local posYslider = menu.slider(menu.my_root(), "Speedometer pos Y", {}, "Default value is 125", 1, 1000, defposY*1000, 1, function(y)
-    backgroundposY = y/1000
-    topbarposY = y/1000 + 0.0005
-    mapborderposY = y/1000 +0.0005
-    mapbackgroundposY = y/1000
+    backgroundposY = y/1000 + 0.195
+    topbarposY = y/1000 + 0.1955
+    mapborderposY = y/1000 + 0.1955
+    mapbackgroundposY = y/1000 + 0.195
     nameposY = y/1000 - 0.028
-    PLAYERposY = y/1000 - 0.020
+    PLAYERposY = y/1000 - 0.010
     PLAYERS_textposY = y/1000 + 0.010
-    CHARACTERposY = y/1000 - 0.020
+    CHARACTERposY = y/1000 - 0.010
     CHARACTER_textposY = y/1000 + 0.010
-    GENERALposY = y/1000 + 0.200
+    GENERALposY = y/1000 + 0.208
     GENERAL_textposY = y/1000 + 0.220
     tagsposY = y/1000 + 0.375
     mapposY = y/1000 + 0.16583594
@@ -543,16 +543,24 @@ function formatMoney(money)
     end
 end
 
-function draw_info_text(text, infotext, posX, posY, distance, hight, size1, size2, extracolor) -- this is my way of doing it the hight is normaly 20 but i have no idea why but sometimes the infotext goes lower then others eh just some numbers dont copy this bc its kinda trash
-    local posY_2 = (posY*1000) + distance / hight
-    local posX_2 = (posX*1000) + distance
+function draw_info_text(text, infotext, posX, posY, distance, size1, size2, bool, extracolor) --with the help of chatgpt i made it a little bit better
     local draw_text = directx.draw_text(posX, posY, text, ALIGN_TOP_LEFT, size1, colors.label, true)
-    local draw_info_text = directx.draw_text(posX_2/1000, posY_2/1000, infotext, ALIGN_TOP_LEFT, size2, extracolor or colors.highlight, true)
-    if text == nil or infotext == nil then
-        return 0
-    else 
-        return draw_text, draw_info_text
+
+    local first_text_width, first_text_height = directx.get_text_size(text, size1)
+    
+    local posX2, alignment
+    local posY2 = posY + (first_text_height/1.9)
+    if bool then
+        posX2 = posX - (-distance/1000)
+        alignment = ALIGN_CENTRE_RIGHT
+    else
+        posX2 = posX + first_text_width + (distance/1000)
+        alignment = ALIGN_CENTRE_LEFT
     end
+    
+    local draw_infotext = directx.draw_text(posX2, posY2, infotext, alignment, size2, extracolor or colors.highlight, true)
+    
+    return draw_text, draw_infotext
 end
 
 function get_prostitutes_solicited(pid)
@@ -585,42 +593,6 @@ function money_color(money)
     end
 end
 
-
-function change_posY(unit1, unit2)--just some silly fucked function also dont mind this remember im bored asf and want to waste my time so yeah lemme use this without any problems and it works fine so yeah
-if unit1 ~= "notting" then
-    local size = string.len(unit1)
-        if size == 1 then
-            return 192.5
-        elseif size == 2 then
-            return 190
-        elseif size == 3 then
-            return 189
-        elseif size == 4 then
-            return 186
-        elseif size == 5 then
-            return 185
-        elseif size >= 6 then
-            return 183
-        else
-            return 192
-        end
-else
-    local size = string.len(unit2)
-        if size == 1 then
-            return 195
-        elseif size == 2 then
-            return 193
-        elseif size == 3 then
-            return 191
-        elseif size == 4 then
-            return 189
-        elseif size == 5 then
-            return 188
-        else
-            return 192
-        end
-end
-end
 
 --DRAWING/GETTING INFO--
 ------------------------
@@ -678,19 +650,19 @@ util.create_tick_handler(function()
                 local host = bool(focusedplayer == players.get_host())
                 local script_host = bool(focusedplayer == players.get_script_host())
                 local hookers = formatMoney(get_prostitutes_solicited(focusedplayer))
+                     
             --topbar--
-		    directx.draw_texture(topborder, 0.12, 0.12, 0.88, 0.125, topbarposX, topbarposY, 0.0, colors.topbar)
+		    directx.draw_texture(topborder, 0.12, 0.12, 0.5, 0.5, topbarposX, topbarposY, 0.0, colors.topbar)
             --background--
-            directx.draw_texture(mainback, 0.12, 0.12, 0.88, 0.125, backgroundposX, backgroundposY, 0.0, colors.background)
-
+            directx.draw_texture(mainback, 0.12, 0.12, 0.5, 0.5, backgroundposX, backgroundposY, 0.0, colors.background)
         -------
         --MAP--
         -------
         if map_show then
             --mapborder--
-            directx.draw_texture(mapborder, 0.12, 0.12, 0.88, 0.125, mapborderposX, mapborderposY, 0.0, colors.topbar)
+            directx.draw_texture(mapborder, 0.12, 0.12, 0.5, 0.5, mapborderposX, mapborderposY, 0.0, colors.topbar)
             --mapbackground--
-            directx.draw_texture(mapback, 0.12, 0.12, 0.88, 0.125, mapbackgroundposX, mapbackgroundposY, 0.0, colors.background)
+            directx.draw_texture(mapback, 0.12, 0.12, 0.5, 0.5, mapbackgroundposX, mapbackgroundposY, 0.0, colors.background)
 
             --im not happy about this code tbh to many fucked up numbers for me and i just copied this shit from InfOverlay from lev maybe if u read this i havnt changed it since its been added but if u dont then its better :D
             --map--
@@ -726,66 +698,68 @@ util.create_tick_handler(function()
             --name--
             directx.draw_text(nameposX, nameposY, name, ALIGN_CENTRE, 0.45, colors.subhead, true)
 
+            local size1 = 0.45
+            local size2 = 0.44
             --PLAYER--
-            directx.draw_text(PLAYERposX, PLAYERposY, "Player Info", ALIGN_TOP_LEFT, 0.5, colors.subhead, true)
+            directx.draw_text(PLAYERposX, PLAYERposY, "Player Info", ALIGN_CENTRE, 0.5, colors.subhead, true)
             --RID--
-            draw_info_text("RID:", RID, PLAYERS_textposX, PLAYERS_textposY, 18, 20, 0.45, 0.44)
+            draw_info_text("RID:", RID, PLAYERS_textposX, PLAYERS_textposY, 2, size1, size2, false)
             --IP--
-            draw_info_text("IP:", IP, PLAYERS_textposX, PLAYERS_textposY + 0.02, 12, 20, 0.45, 0.44)
+            draw_info_text("IP:", IP, PLAYERS_textposX, PLAYERS_textposY + 0.02, 2, size1, size2, false)
             --rank--
-            draw_info_text("Rank:", rank, PLAYERS_textposX, PLAYERS_textposY + 0.04, 22, 20, 0.45, 0.44)
+            draw_info_text("Rank:", rank, PLAYERS_textposX, PLAYERS_textposY + 0.04, 2, size1, size2, false)
             --kd--
-            draw_info_text("K/D:", kd, PLAYERS_textposX, PLAYERS_textposY + 0.06, 18, 20, 0.45, 0.44)
+            draw_info_text("K/D:", kd, PLAYERS_textposX, PLAYERS_textposY + 0.06, 2, size1, size2, false)
             --lang--
-            draw_info_text("Language:", lang, PLAYERS_textposX, PLAYERS_textposY + 0.08, 39, 30, 0.45, 0.44)
+            draw_info_text("Language:", lang, PLAYERS_textposX, PLAYERS_textposY + 0.08, 2, size1, size2, false)
             --controller--
-            draw_info_text("Controller:", controller, PLAYERS_textposX, PLAYERS_textposY + 0.1, 40, 30, 0.45, 0.44, green_or_red(controller))
+            draw_info_text("Controller:", controller, PLAYERS_textposX, PLAYERS_textposY + 0.1, 2, size1, size2, false, green_or_red(controller))
             --host--
-            draw_info_text("Host:", host, PLAYERS_textposX, PLAYERS_textposY + 0.12, 22, 20, 0.45, 0.44, green_or_red(host))
+            draw_info_text("Host:", host, PLAYERS_textposX, PLAYERS_textposY + 0.12, 2, size1, size2, false, green_or_red(host))
             --script host--
-            draw_info_text("Script host:", script_host, PLAYERS_textposX, PLAYERS_textposY + 0.14, 43, 35, 0.45, 0.44, green_or_red(script_host))
+            draw_info_text("Script host:", script_host, PLAYERS_textposX, PLAYERS_textposY + 0.14, 2, size1, size2, false, green_or_red(script_host))
             --host queue--
-            draw_info_text("Host queue:", host_queue, PLAYERS_textposX, PLAYERS_textposY + 0.16, 45, 30, 0.45, 0.44)
+            draw_info_text("Host queue:", host_queue, PLAYERS_textposX, PLAYERS_textposY + 0.16, 2, size1, size2, false)
 
             --CHARACTER--
-            directx.draw_text(CHARACTERposX, CHARACTERposY, "Character Info", ALIGN_TOP_LEFT, 0.5, colors.subhead, true)
+            directx.draw_text(CHARACTERposX, CHARACTERposY, "Character Info", ALIGN_CENTRE, 0.5, colors.subhead, true)
             --org--
-            draw_info_text("Org:", org_type, CHARACTER_textposX, CHARACTER_textposY, 18, 20, 0.45, 0.44)
+            draw_info_text("Org:", org_type, CHARACTER_textposX, CHARACTER_textposY, 2, size1, size2, false)
             --distance--
-            draw_info_text("Distance:", distance, CHARACTER_textposX, CHARACTER_textposY + 0.02, 34, 20, 0.45, 0.44)
+            draw_info_text("Distance:", distance, CHARACTER_textposX, CHARACTER_textposY + 0.02, 2, size1, size2, false)
             --speed--
-            draw_info_text("Speed:", cal_speed .. value, CHARACTER_textposX, CHARACTER_textposY + 0.04, 27, 30, 0.45, 0.44)
+            draw_info_text("Speed:", cal_speed .. value, CHARACTER_textposX, CHARACTER_textposY + 0.04, 2, size1, size2, false)
             --health--
-            draw_info_text("Health:", health .. "/" .. maxhealth, CHARACTER_textposX, CHARACTER_textposY + 0.06, 27, 20, 0.45, 0.44)
+            draw_info_text("Health:", health .. "/" .. maxhealth, CHARACTER_textposX, CHARACTER_textposY + 0.06, 2, size1, size2, false)
             --armor--
-            draw_info_text("Armor:", armor .. "/" .. maxarmor, CHARACTER_textposX, CHARACTER_textposY + 0.08, 27, 20, 0.45, 0.44)
+            draw_info_text("Armor:", armor .. "/" .. maxarmor, CHARACTER_textposX, CHARACTER_textposY + 0.08, 2, size1, size2, false)
             --gm--
-            draw_info_text("Godmode:", godmode, CHARACTER_textposX, CHARACTER_textposY + 0.1, 41, 30, 0.45, 0.44, green_or_red(godmode))
+            draw_info_text("Godmode:", godmode, CHARACTER_textposX, CHARACTER_textposY + 0.1, 2, size1, size2, false, green_or_red(godmode))
             --otr--
-            draw_info_text("Off the radar:", otr, CHARACTER_textposX, CHARACTER_textposY + 0.12, 50, 40, 0.45, 0.44, green_or_red(otr))
+            draw_info_text("Off the radar:", otr, CHARACTER_textposX, CHARACTER_textposY + 0.12, 2, size1, size2, false, green_or_red(otr))
             --vehicle--
-            draw_info_text("Vehicle:", vehicle_name, CHARACTER_textposX, CHARACTER_textposY + 0.14, 30, 20, 0.45, 0.44)
+            draw_info_text("Vehicle:", vehicle_name, CHARACTER_textposX, CHARACTER_textposY + 0.14, 2, size1, size2, false)
             --weapon--
-            draw_info_text("Weapon:", weapon, CHARACTER_textposX, CHARACTER_textposY + 0.16, 34, 30, 0.45, 0.44)
+            draw_info_text("Weapon:", weapon, CHARACTER_textposX, CHARACTER_textposY + 0.16, 2, size1, size2, false)
 
             --GENERAL--
-            directx.draw_text(GENERALposX, GENERALposY, "General Info", ALIGN_TOP_LEFT, 0.5, colors.subhead, true)
+            directx.draw_text(GENERALposX, GENERALposY, "General Info", ALIGN_CENTRE, 0.5, colors.subhead, true)
             --wanted lvl--
-            draw_info_text("Wanted level:", wanted_lvl .. "/" .. max_wanted_lvl, GENERAL_textposX, GENERAL_textposY, 192, 120, 0.45, 0.44)
+            draw_info_text("Wanted level:", wanted_lvl .. "/" .. max_wanted_lvl, GENERAL_textposX, GENERAL_textposY, 205, size1, size2, true)
             --atk you--
-            draw_info_text("Atk you:", atk_you, GENERAL_textposX, GENERAL_textposY + 0.02, 192, 100, 0.45, 0.44, green_or_red(atk_you))
+            draw_info_text("Atk you:", atk_you, GENERAL_textposX, GENERAL_textposY + 0.02, 205, size1, size2, true, green_or_red(atk_you))
             --mod or admin--
-            draw_info_text("Mod or Admin:", mod_or_ad, GENERAL_textposX, GENERAL_textposY + 0.04, 192, 100, 0.45, 0.44, green_or_red(mod_or_ad))
+            draw_info_text("Mod or Admin:", mod_or_ad, GENERAL_textposX, GENERAL_textposY + 0.04, 205, size1, size2, true, green_or_red(mod_or_ad))
             --total money--
-            draw_info_text("Total:", "$" .. totalmoney, GENERAL_textposX, GENERAL_textposY + 0.06, change_posY(totalmoney), 100, 0.45, 0.44, money_color(players.get_money(focusedplayer)))
+            draw_info_text("Total:", "$" .. totalmoney, GENERAL_textposX, GENERAL_textposY + 0.06, 205, size1, size2, true, money_color(players.get_money(focusedplayer)))
             --walled money--
-            draw_info_text("Wallet:", "$" .. walletmoney, GENERAL_textposX, GENERAL_textposY + 0.08, change_posY(walletmoney), 100, 0.45, 0.44, money_color(players.get_wallet(focusedplayer)))
+            draw_info_text("Wallet:", "$" .. walletmoney, GENERAL_textposX, GENERAL_textposY + 0.08, 205, size1, size2, true, money_color(players.get_wallet(focusedplayer)))
             --bank money--
-            draw_info_text("Bank:", "$" .. bankmoney, GENERAL_textposX, GENERAL_textposY + 0.1, change_posY(bankmoney), 100, 0.45, 0.44, money_color(players.get_bank(focusedplayer)))
+            draw_info_text("Bank:", "$" .. bankmoney, GENERAL_textposX, GENERAL_textposY + 0.1, 205, size1, size2, true, money_color(players.get_bank(focusedplayer)))
             --hookers--
-            draw_info_text("whore's:", hookers, GENERAL_textposX, GENERAL_textposY + 0.12, change_posY("notting", hookers), 100, 0.45, 0.44)
+            draw_info_text("whore's:", hookers, GENERAL_textposX, GENERAL_textposY + 0.12, 205, size1, size2, true)
             --tags--
-            draw_info_text("Tags:", tags, tagsposX, tagsposY, 22, 20, 0.45, 0.44)
+            draw_info_text("Tags:", tags, tagsposX, tagsposY, 205, size1, size2, true)
         end
     end
 end)
