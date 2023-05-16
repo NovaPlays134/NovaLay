@@ -593,7 +593,7 @@ function money_color(money)
     end
 end
 
-
+------------------------
 --DRAWING/GETTING INFO--
 ------------------------
 util.create_tick_handler(function()
@@ -606,7 +606,7 @@ util.create_tick_handler(function()
             else
                 focusedplayer = focusedplayer[1]
             end
-
+            if players.exists(focusedplayer) then
                 local focusedped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(focusedplayer)
                 local mypos, playerpos = players.get_position(players.user()), players.get_position(focusedplayer)
                 local weapon_hash = WEAPON.GET_SELECTED_PED_WEAPON(focusedped)
@@ -616,12 +616,12 @@ util.create_tick_handler(function()
 		        local kph = speed * 3.6
 		        local value = " mph"
 
-		    if mesh == 1 then 
-			    measured_speed = mph 
-			else
-			    measured_speed = kph
-			    value = " kmh"
-			end
+		        if mesh == 1 then 
+			        measured_speed = mph 
+			    else
+			        measured_speed = kph
+			        value = " kmh"
+			    end
 
                 local name = players.get_name(focusedplayer)
                 local RID = players.get_rockstar_id(focusedplayer)
@@ -651,115 +651,116 @@ util.create_tick_handler(function()
                 local script_host = bool(focusedplayer == players.get_script_host())
                 local hookers = formatMoney(get_prostitutes_solicited(focusedplayer))
                      
-            --topbar--
-		    directx.draw_texture(topborder, 0.12, 0.12, 0.5, 0.5, topbarposX, topbarposY, 0.0, colors.topbar)
-            --background--
-            directx.draw_texture(mainback, 0.12, 0.12, 0.5, 0.5, backgroundposX, backgroundposY, 0.0, colors.background)
-        -------
-        --MAP--
-        -------
-        if map_show then
-            --mapborder--
-            directx.draw_texture(mapborder, 0.12, 0.12, 0.5, 0.5, mapborderposX, mapborderposY, 0.0, colors.topbar)
-            --mapbackground--
-            directx.draw_texture(mapback, 0.12, 0.12, 0.5, 0.5, mapbackgroundposX, mapbackgroundposY, 0.0, colors.background)
-
-            --im not happy about this code tbh to many fucked up numbers for me and i just copied this shit from InfOverlay from lev maybe if u read this i havnt changed it since its been added but if u dont then its better :D
-            --map--
-            local mapsizeX, mapsizeY = 0.14416506, 0.3864867
-            directx.draw_texture(map, mapsizeX/2, mapsizeY, 0.5, 0.5, mapposX, mapposY, 0.0, colors.map)
-
-            --blip--
-            local blip_posX = blipposX + 0.0161603566 + ((playerpos.x + 3745)/8316) * mapsizeX
-            local blip_posY = blipposY + (1 - (playerpos.y + 4427)/12689) * mapsizeY
-            local heading = ENTITY.GET_ENTITY_HEADING(focusedped)
-            --playerblip--
-            local playerblip_posX = blipposX + 0.0161603566 + ((mypos.x + 3745)/8316) * mapsizeX
-            local playerblip_posY = blipposY + (1 - (mypos.y + 4427)/12689) * mapsizeY
-            if blip_posX <= mapposX+0.07948270113 and blip_posX >= mapposX-0.072813007 and blip_posY >= mapposY-0.20722706 and blip_posY <= mapposY+0.21976627 then
-                    directx.draw_texture(blip, blipsize, blipsize, 0.5, 0.5, blip_posX, blip_posY, (360 - heading)/360, colors.blip)
-                if selfblip then
-                    if distance ~= "This is you" then
-                        directx.draw_texture(Playerblip, blipsize, blipsize, 0.5, 0.5, playerblip_posX, playerblip_posY, 0, colors.blip)
+                --topbar--
+		        directx.draw_texture(topborder, 0.12, 0.12, 0.5, 0.5, topbarposX, topbarposY, 0.0, colors.topbar)
+                --background--
+                directx.draw_texture(mainback, 0.12, 0.12, 0.5, 0.5, backgroundposX, backgroundposY, 0.0, colors.background)
+                -------
+                --MAP--
+                -------
+                if map_show then
+                    --mapborder--
+                    directx.draw_texture(mapborder, 0.12, 0.12, 0.5, 0.5, mapborderposX, mapborderposY, 0.0, colors.topbar)
+                    --mapbackground--
+                    directx.draw_texture(mapback, 0.12, 0.12, 0.5, 0.5, mapbackgroundposX, mapbackgroundposY, 0.0, colors.background)
+        
+                    --im not happy about this code tbh to many fucked up numbers for me and i just copied this shit from InfOverlay from lev maybe if u read this i havnt changed it since its been added but if u dont then its better :D
+                    --map--
+                    local mapsizeX, mapsizeY = 0.14416506, 0.3864867
+                    directx.draw_texture(map, mapsizeX/2, mapsizeY, 0.5, 0.5, mapposX, mapposY, 0.0, colors.map)
+        
+                    --blip--
+                    local blip_posX = blipposX + 0.0161603566 + ((playerpos.x + 3745)/8316) * mapsizeX
+                    local blip_posY = blipposY + (1 - (playerpos.y + 4427)/12689) * mapsizeY
+                    local heading = ENTITY.GET_ENTITY_HEADING(focusedped)
+                    --playerblip--
+                    local playerblip_posX = blipposX + 0.0161603566 + ((mypos.x + 3745)/8316) * mapsizeX
+                    local playerblip_posY = blipposY + (1 - (mypos.y + 4427)/12689) * mapsizeY
+                    if blip_posX <= mapposX+0.07948270113 and blip_posX >= mapposX-0.072813007 and blip_posY >= mapposY-0.20722706 and blip_posY <= mapposY+0.21976627 then
+                            directx.draw_texture(blip, blipsize, blipsize, 0.5, 0.5, blip_posX, blip_posY, (360 - heading)/360, colors.blip)
+                        if selfblip then
+                            if distance ~= "This is you" then
+                                directx.draw_texture(Playerblip, blipsize, blipsize, 0.5, 0.5, playerblip_posX, playerblip_posY, 0, colors.blip)
+                            end
+                        end
                     end
+                    --healthbar--
+                    directx.draw_rect(health_barX, barY, 0.07, 0.015, colors.health_bar)
+                    local second_health_bar_color = {r = colors.health_bar.r, g = colors.health_bar.g, b = colors.health_bar.b, a = colors.health_bar.a/2}
+                    directx.draw_rect(health_barX, barY, (health / maxhealth) * (0.31 - 0.24), 0.015, second_health_bar_color) --i fr got the formula from chatgpt xD
+                    directx.draw_text(health_bartxtX, bar_txtY, health .. "/" .. maxhealth, ALIGN_CENTRE, 0.42, colors.health_bar_text, true)
+                    --armorbar--
+                    local second_armor_bar_color = {r = colors.armour_bar.r, g = colors.armour_bar.g, b = colors.armour_bar.b, a = colors.armour_bar.a/2}
+                    directx.draw_rect(armor_barX, barY, 0.07, 0.015, colors.armour_bar)
+                    directx.draw_rect(armor_barX, barY, (armor / maxarmor) * (0.385 - 0.315), 0.015, second_armor_bar_color)
+                    directx.draw_text(armor_bartxtX, bar_txtY, armor .. "/" .. maxarmor, ALIGN_CENTRE, 0.42, colors.armor_bar_text, true)
                 end
+                --name--
+                directx.draw_text(nameposX, nameposY, name, ALIGN_CENTRE, 0.45, colors.subhead, true)
+    
+                local size1 = 0.45
+                local size2 = 0.44
+                --PLAYER--
+                directx.draw_text(PLAYERposX, PLAYERposY, "Player Info", ALIGN_CENTRE, 0.5, colors.subhead, true)
+                --RID--
+                draw_info_text("RID:", RID, PLAYERS_textposX, PLAYERS_textposY, 2, size1, size2, false)
+                --IP--
+                draw_info_text("IP:", IP, PLAYERS_textposX, PLAYERS_textposY + 0.02, 2, size1, size2, false)
+                --rank--
+                draw_info_text("Rank:", rank, PLAYERS_textposX, PLAYERS_textposY + 0.04, 2, size1, size2, false)
+                --kd--
+                draw_info_text("K/D:", kd, PLAYERS_textposX, PLAYERS_textposY + 0.06, 2, size1, size2, false)
+                --lang--
+                draw_info_text("Language:", lang, PLAYERS_textposX, PLAYERS_textposY + 0.08, 2, size1, size2, false)
+                --controller--
+                draw_info_text("Controller:", controller, PLAYERS_textposX, PLAYERS_textposY + 0.1, 2, size1, size2, false, green_or_red(controller))
+                --host--
+                draw_info_text("Host:", host, PLAYERS_textposX, PLAYERS_textposY + 0.12, 2, size1, size2, false, green_or_red(host))
+                --script host--
+                draw_info_text("Script host:", script_host, PLAYERS_textposX, PLAYERS_textposY + 0.14, 2, size1, size2, false, green_or_red(script_host))
+                --host queue--
+                draw_info_text("Host queue:", host_queue, PLAYERS_textposX, PLAYERS_textposY + 0.16, 2, size1, size2, false)
+    
+                --CHARACTER--
+                directx.draw_text(CHARACTERposX, CHARACTERposY, "Character Info", ALIGN_CENTRE, 0.5, colors.subhead, true)
+                --org--
+                draw_info_text("Org:", org_type, CHARACTER_textposX, CHARACTER_textposY, 2, size1, size2, false)
+                --distance--
+                draw_info_text("Distance:", distance, CHARACTER_textposX, CHARACTER_textposY + 0.02, 2, size1, size2, false)
+                --speed--
+                draw_info_text("Speed:", cal_speed .. value, CHARACTER_textposX, CHARACTER_textposY + 0.04, 2, size1, size2, false)
+                --health--
+                draw_info_text("Health:", health .. "/" .. maxhealth, CHARACTER_textposX, CHARACTER_textposY + 0.06, 2, size1, size2, false)
+                --armor--
+                draw_info_text("Armor:", armor .. "/" .. maxarmor, CHARACTER_textposX, CHARACTER_textposY + 0.08, 2, size1, size2, false)
+                --gm--
+                draw_info_text("Godmode:", godmode, CHARACTER_textposX, CHARACTER_textposY + 0.1, 2, size1, size2, false, green_or_red(godmode))
+                --otr--
+                draw_info_text("Off the radar:", otr, CHARACTER_textposX, CHARACTER_textposY + 0.12, 2, size1, size2, false, green_or_red(otr))
+                --vehicle--
+                draw_info_text("Vehicle:", vehicle_name, CHARACTER_textposX, CHARACTER_textposY + 0.14, 2, size1, size2, false)
+                --weapon--
+                draw_info_text("Weapon:", weapon, CHARACTER_textposX, CHARACTER_textposY + 0.16, 2, size1, size2, false)
+    
+                --GENERAL--
+                directx.draw_text(GENERALposX, GENERALposY, "General Info", ALIGN_CENTRE, 0.5, colors.subhead, true)
+                --wanted lvl--
+                draw_info_text("Wanted level:", wanted_lvl .. "/" .. max_wanted_lvl, GENERAL_textposX, GENERAL_textposY, 205, size1, size2, true)
+                --atk you--
+                draw_info_text("Atk you:", atk_you, GENERAL_textposX, GENERAL_textposY + 0.02, 205, size1, size2, true, green_or_red(atk_you))
+                --mod or admin--
+                draw_info_text("Mod or Admin:", mod_or_ad, GENERAL_textposX, GENERAL_textposY + 0.04, 205, size1, size2, true, green_or_red(mod_or_ad))
+                --total money--
+                draw_info_text("Total:", "$" .. totalmoney, GENERAL_textposX, GENERAL_textposY + 0.06, 205, size1, size2, true, money_color(players.get_money(focusedplayer)))
+                --walled money--
+                draw_info_text("Wallet:", "$" .. walletmoney, GENERAL_textposX, GENERAL_textposY + 0.08, 205, size1, size2, true, money_color(players.get_wallet(focusedplayer)))
+                --bank money--
+                draw_info_text("Bank:", "$" .. bankmoney, GENERAL_textposX, GENERAL_textposY + 0.1, 205, size1, size2, true, money_color(players.get_bank(focusedplayer)))
+                --hookers--
+                draw_info_text("whore's:", hookers, GENERAL_textposX, GENERAL_textposY + 0.12, 205, size1, size2, true)
+                --tags--
+                draw_info_text("Tags:", tags, tagsposX, tagsposY, 205, size1, size2, true)
             end
-            --healthbar--
-            directx.draw_rect(health_barX, barY, 0.07, 0.015, colors.health_bar)
-            local second_health_bar_color = {r = colors.health_bar.r, g = colors.health_bar.g, b = colors.health_bar.b, a = colors.health_bar.a/2}
-            directx.draw_rect(health_barX, barY, (health / maxhealth) * (0.31 - 0.24), 0.015, second_health_bar_color) --i fr got the formula from chatgpt xD
-            directx.draw_text(health_bartxtX, bar_txtY, health .. "/" .. maxhealth, ALIGN_CENTRE, 0.42, colors.health_bar_text, true)
-            --armorbar--
-            local second_armor_bar_color = {r = colors.armour_bar.r, g = colors.armour_bar.g, b = colors.armour_bar.b, a = colors.armour_bar.a/2}
-            directx.draw_rect(armor_barX, barY, 0.07, 0.015, colors.armour_bar)
-            directx.draw_rect(armor_barX, barY, (armor / maxarmor) * (0.385 - 0.315), 0.015, second_armor_bar_color)
-            directx.draw_text(armor_bartxtX, bar_txtY, armor .. "/" .. maxarmor, ALIGN_CENTRE, 0.42, colors.armor_bar_text, true)
-        end
-            --name--
-            directx.draw_text(nameposX, nameposY, name, ALIGN_CENTRE, 0.45, colors.subhead, true)
-
-            local size1 = 0.45
-            local size2 = 0.44
-            --PLAYER--
-            directx.draw_text(PLAYERposX, PLAYERposY, "Player Info", ALIGN_CENTRE, 0.5, colors.subhead, true)
-            --RID--
-            draw_info_text("RID:", RID, PLAYERS_textposX, PLAYERS_textposY, 2, size1, size2, false)
-            --IP--
-            draw_info_text("IP:", IP, PLAYERS_textposX, PLAYERS_textposY + 0.02, 2, size1, size2, false)
-            --rank--
-            draw_info_text("Rank:", rank, PLAYERS_textposX, PLAYERS_textposY + 0.04, 2, size1, size2, false)
-            --kd--
-            draw_info_text("K/D:", kd, PLAYERS_textposX, PLAYERS_textposY + 0.06, 2, size1, size2, false)
-            --lang--
-            draw_info_text("Language:", lang, PLAYERS_textposX, PLAYERS_textposY + 0.08, 2, size1, size2, false)
-            --controller--
-            draw_info_text("Controller:", controller, PLAYERS_textposX, PLAYERS_textposY + 0.1, 2, size1, size2, false, green_or_red(controller))
-            --host--
-            draw_info_text("Host:", host, PLAYERS_textposX, PLAYERS_textposY + 0.12, 2, size1, size2, false, green_or_red(host))
-            --script host--
-            draw_info_text("Script host:", script_host, PLAYERS_textposX, PLAYERS_textposY + 0.14, 2, size1, size2, false, green_or_red(script_host))
-            --host queue--
-            draw_info_text("Host queue:", host_queue, PLAYERS_textposX, PLAYERS_textposY + 0.16, 2, size1, size2, false)
-
-            --CHARACTER--
-            directx.draw_text(CHARACTERposX, CHARACTERposY, "Character Info", ALIGN_CENTRE, 0.5, colors.subhead, true)
-            --org--
-            draw_info_text("Org:", org_type, CHARACTER_textposX, CHARACTER_textposY, 2, size1, size2, false)
-            --distance--
-            draw_info_text("Distance:", distance, CHARACTER_textposX, CHARACTER_textposY + 0.02, 2, size1, size2, false)
-            --speed--
-            draw_info_text("Speed:", cal_speed .. value, CHARACTER_textposX, CHARACTER_textposY + 0.04, 2, size1, size2, false)
-            --health--
-            draw_info_text("Health:", health .. "/" .. maxhealth, CHARACTER_textposX, CHARACTER_textposY + 0.06, 2, size1, size2, false)
-            --armor--
-            draw_info_text("Armor:", armor .. "/" .. maxarmor, CHARACTER_textposX, CHARACTER_textposY + 0.08, 2, size1, size2, false)
-            --gm--
-            draw_info_text("Godmode:", godmode, CHARACTER_textposX, CHARACTER_textposY + 0.1, 2, size1, size2, false, green_or_red(godmode))
-            --otr--
-            draw_info_text("Off the radar:", otr, CHARACTER_textposX, CHARACTER_textposY + 0.12, 2, size1, size2, false, green_or_red(otr))
-            --vehicle--
-            draw_info_text("Vehicle:", vehicle_name, CHARACTER_textposX, CHARACTER_textposY + 0.14, 2, size1, size2, false)
-            --weapon--
-            draw_info_text("Weapon:", weapon, CHARACTER_textposX, CHARACTER_textposY + 0.16, 2, size1, size2, false)
-
-            --GENERAL--
-            directx.draw_text(GENERALposX, GENERALposY, "General Info", ALIGN_CENTRE, 0.5, colors.subhead, true)
-            --wanted lvl--
-            draw_info_text("Wanted level:", wanted_lvl .. "/" .. max_wanted_lvl, GENERAL_textposX, GENERAL_textposY, 205, size1, size2, true)
-            --atk you--
-            draw_info_text("Atk you:", atk_you, GENERAL_textposX, GENERAL_textposY + 0.02, 205, size1, size2, true, green_or_red(atk_you))
-            --mod or admin--
-            draw_info_text("Mod or Admin:", mod_or_ad, GENERAL_textposX, GENERAL_textposY + 0.04, 205, size1, size2, true, green_or_red(mod_or_ad))
-            --total money--
-            draw_info_text("Total:", "$" .. totalmoney, GENERAL_textposX, GENERAL_textposY + 0.06, 205, size1, size2, true, money_color(players.get_money(focusedplayer)))
-            --walled money--
-            draw_info_text("Wallet:", "$" .. walletmoney, GENERAL_textposX, GENERAL_textposY + 0.08, 205, size1, size2, true, money_color(players.get_wallet(focusedplayer)))
-            --bank money--
-            draw_info_text("Bank:", "$" .. bankmoney, GENERAL_textposX, GENERAL_textposY + 0.1, 205, size1, size2, true, money_color(players.get_bank(focusedplayer)))
-            --hookers--
-            draw_info_text("whore's:", hookers, GENERAL_textposX, GENERAL_textposY + 0.12, 205, size1, size2, true)
-            --tags--
-            draw_info_text("Tags:", tags, tagsposX, tagsposY, 205, size1, size2, true)
         end
     end
 end)
