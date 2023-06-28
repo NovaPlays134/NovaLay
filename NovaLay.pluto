@@ -255,7 +255,6 @@ function money_color(number)
     end
 end
 
-local ips = {}
 local function get_ip_data(ip)
     local data = {city = "unknown", state = "unknown", country = "unknown"}
     if (loc := soup.netIntel.getLocationByIp(ip)):isValid() then
