@@ -1,0 +1,638 @@
+--[[
+    This script is made by Nova,
+    this code may look a bit messy with all the mapped numbers and scaling stuff but it works and it looks clean.
+    I hope you enjoy the script!
+--]]
+
+--[[Ped (int)]] function get_player_ped_script_index(--[[Player (int)]] player)native_invoker.begin_call()native_invoker.push_arg_int(player)native_invoker.end_call_2(0x50FAC3A3E030A6E1)return native_invoker.get_return_value_int()end
+--[[float]] function get_entity_heading(--[[Entity (int)]] entity)native_invoker.begin_call()native_invoker.push_arg_int(entity)native_invoker.end_call_2(0xE83D4F9BA2A38914)return native_invoker.get_return_value_float()end
+--[[int]] function get_entity_health(--[[Entity (int)]] entity)native_invoker.begin_call()native_invoker.push_arg_int(entity)native_invoker.end_call_2(0xEEF059FAD016D209)return native_invoker.get_return_value_int()end
+--[[int]] function get_entity_max_health(--[[Entity (int)]] entity)native_invoker.begin_call()native_invoker.push_arg_int(entity)native_invoker.end_call_2(0x15D757606D170C3C)return native_invoker.get_return_value_int()end
+--[[int]] function get_ped_armor(--[[Ped (int)]] ped)native_invoker.begin_call()native_invoker.push_arg_int(ped)native_invoker.end_call_2(0x9483AF821605B1D8)return native_invoker.get_return_value_int()end
+--[[int]] function get_player_max_armor(--[[Player (int)]] player)native_invoker.begin_call()native_invoker.push_arg_int(player)native_invoker.end_call_2(0x92659B4CE1863CB3)return native_invoker.get_return_value_int()end
+--[[int]] local function get_player_wanted_level(--[[Player (int)]] player)native_invoker.begin_call()native_invoker.push_arg_int(player)native_invoker.end_call_2(0xE28E54788CE8F12D)return native_invoker.get_return_value_int()end
+--[[int]] local function get_max_wanted_level()native_invoker.begin_call()native_invoker.end_call_2(0x462E0DB9B137DC5F)return native_invoker.get_return_value_int()end
+--[[float]] local function get_entity_speed(--[[Entity (int)]] entity)native_invoker.begin_call()native_invoker.push_arg_int(entity)native_invoker.end_call_2(0xD5037BA82E12416F)return native_invoker.get_return_value_float()end
+--[[float]] local function network_get_average_latency(--[[Player (int)]] player)native_invoker.begin_call()native_invoker.push_arg_int(player)native_invoker.end_call_2(0xD414BE129BB81B32)return native_invoker.get_return_value_float()end
+--[[string]] local function get_name_of_zone(--[[float]] x,--[[float]] y,--[[float]] z)native_invoker.begin_call()native_invoker.push_arg_float(x)native_invoker.push_arg_float(y)native_invoker.push_arg_float(z)native_invoker.end_call_2(0xCD90657D4C30E1CA)return native_invoker.get_return_value_string()end
+--[[void]] local function get_street_name_at_coord(--[[float]] x,--[[float]] y,--[[float]] z,--[[Hash* (pointer)]] streetName,--[[Hash* (pointer)]] crossingRoad)native_invoker.begin_call()native_invoker.push_arg_float(x)native_invoker.push_arg_float(y)native_invoker.push_arg_float(z)native_invoker.push_arg_pointer(streetName)native_invoker.push_arg_pointer(crossingRoad)native_invoker.end_call_2(0x2EB41072B4C1E4C0)end
+--[[Hash (int)]] local function get_selected_ped_weapon(--[[Ped (int)]] ped)native_invoker.begin_call()native_invoker.push_arg_int(ped)native_invoker.end_call_2(0x0A6DB4965674D243)return native_invoker.get_return_value_int()end
+
+
+util.keep_running()
+local scripts_dir = filesystem.scripts_dir()
+local requirements = {
+    resources = {
+        blip = $"{scripts_dir}/resources/NovaLay/Blip.png",
+        gta_map = $"{scripts_dir}/resources/NovaLay/GTA_Map.png",
+        gta_map2 = $"{scripts_dir}/resources/NovaLay/GTA_Map2.png",
+        user_blip = $"{scripts_dir}/resources/NovaLay/user_blip.png",
+    },
+    old_resources = {
+        $"{scripts_dir}/NovaLay.lua",
+        $"{scripts_dir}/resources/NovaLay/topborder.png",
+        $"{scripts_dir}/resources/NovaLay/mainbackground.png",
+        $"{scripts_dir}/resources/NovaLay/topbordermap.png",
+        $"{scripts_dir}/resources/NovaLay/mapbackground.png",
+    },
+}
+
+for i, file_path in requirements.old_resources do
+    if filesystem.exists(file_path) then
+        os.remove(file_path)
+    end
+end
+
+local R = {}
+util.execute_in_os_thread(function() 
+    for name, file_path in requirements.resources do
+        R[name] = directx.create_texture(file_path)
+    end
+end)
+
+local option_focus_bool = {
+    remove_info_list = false,
+    remove_map = false,
+    remove_additional_info = false,
+    map_list = false,
+    map_option = false,
+    blip_size_opt = false,
+    colors_list = false,
+    show_yes_no_colors = false,
+    show_money_value_color = false,
+    background_rect_color = false,
+    top_border_color = false,
+    subhead_color = false,
+    left_aligned_text_color = false,
+    right_aligned_text_color = false,
+    blip_color = false,
+    health_bar_color = false,
+    armor_bar_color = false,
+    health_bar_text_color = false,
+    armor_bar_text_color = false,
+    change_size = false,
+    change_positionX = false,
+    change_positionY = false,
+    change_speed_measurement = false,
+}
+
+local show_green_red = true
+local show_money_color = true
+
+local colors = {
+    background_rect = {r = 0, g = 0, b = 0, a = 175/255},
+    top_border = {r = 0, g = 0, b = 0, a = 1.0},
+    subhead = {r = 1, g = 1, b = 1, a = 1},
+    left_aligned_text = {r = 1, g = 1, b = 1, a = 1},
+    right_aligned_text = {r = 160/255, g = 160/255, b = 160/255, a = 1.0},
+    blip = {r = 1, g = 1, b = 1, a = 1},
+    health_bar = {r = 57/255, g = 102/255, b = 57/255, a = 150/255},
+    armor_bar = {r = 62/255, g = 118/255, b = 147/255, a = 1.0},
+    health_bar_text = {r = 99/255, g = 175/255, b = 99/255, a = 1.0},
+    armor_bar_text = {r = 62/255, g = 118/255, b = 147/255, a = 1.0},
+    white = {r = 1, g = 1, b = 1, a = 1},
+    red = {r = 1, g = 0, b = 0, a = 1},
+    green = {r = 0, g = 1, b = 0, a = 1},
+    orange = {r = 1, g = 138/255, b = 31/255, a = 1},
+    colored_map_color = {r = 1, g = 1, b = 1, a = 195/255}
+}
+
+local languages = {
+    [0] = "English",
+    [1] = "French",
+    [2] = "German",
+    [3] = "Italian",
+    [4] = "Spanish",
+    [5] = "Brazilian",
+    [6] = "Polish",
+    [7] = "Russian",
+    [8] = "Korean",
+    [9] = "Chinese",
+    [10] = "Japanese",
+    [11] = "Mexican",
+    [12] = "Chinese"
+}
+
+local function setup_focus_handlers(opt, opt_name)
+    menu.on_focus(opt, function()
+        option_focus_bool[opt_name] = true
+    end)
+
+    menu.on_blur(opt, function()
+        option_focus_bool[opt_name] = false
+    end)
+end
+
+local function table_has_true(tbl)
+    for i, bool in tbl do
+        if bool then
+            return true
+        end
+    end
+    return false
+end
+
+function map_number(number)
+    number = number + 2
+    local num = 0
+    if number == 5 then
+        num =  1
+    elseif number > 5 then
+        num = 1 + (number - 5) * 0.1
+    else
+        num = 1 - (5 - number) * 0.1
+    end
+    return ((1.6 - num) % 1.5) * 2
+end
+
+function map(value, inputmin, inputmax, outputmin, outputmax)
+    local mapped_value = ((value - inputmin) / (inputmax - inputmin)) * (outputmax - outputmin) + outputmin
+    return mapped_value
+end
+
+function draw_info_text(text, infotext, posX, posY, posX2, size1, size2, info_text_clr)
+    local first_text_width, first_text_height = directx.get_text_size("Org:", size1)
+
+    posX = posX
+    local draw_text = directx.draw_text(posX, posY, text, ALIGN_TOP_LEFT, size1, colors.left_aligned_text, true)
+
+    local second_text_width, second_text_height = directx.get_text_size(text, size1)
+    local posY2 = posY + (second_text_height/8)
+    local draw_infotext = directx.draw_text(posX2, posY2, infotext, ALIGN_TOP_RIGHT, size2, info_text_clr, true)
+end
+
+local all_weapons = {}
+for i, v in util.get_weapons() do
+    all_weapons[i] = {hash = v.hash, label_key = v.label_key}
+end
+
+function get_weapon_name_from_hash(hash) 
+    for i, v in all_weapons do 
+        if v.hash == hash then
+            return util.get_label_text(v.label_key)
+        end
+    end
+    return "Unarmed"
+end
+
+function yes_no_conv(bool)
+    if bool == true or bool == 1 then
+        return "Yes"
+    else
+        return "No"
+    end
+end
+
+function check_for_none(info)
+    if info == nil or info == "NULL" or info == 0 or info == " " or info == "" then
+        return "None"
+    else
+        return info
+    end
+end
+
+function queue_check(info)
+    if info == nil or info == "NULL" or info == " " then
+        return 0
+    else
+        return "#" .. info
+    end
+end
+
+function organisation(org_type)
+    if org_type == -1 then
+        return "Isn't in any"
+    elseif org_type == 0 then
+        return "CEO"
+    else
+        return "MC"
+    end
+end
+
+function round(num, dp)
+    local mult = 10 ^ (dp or 0)
+    return math.floor(num * mult + 0.5) / mult
+end
+
+function format_money(number)
+    local suffixes = {"", "K", "M", "B"}
+    local suffix_index = 1
+
+    while number >= 1000 and suffix_index < #suffixes do
+        number = number / 1000
+        suffix_index = suffix_index + 1
+    end
+
+    local formatted_number = string.format("%.2f", number)
+    local suffix = suffixes[suffix_index]
+
+    return formatted_number .. suffix
+end
+
+function green_or_red(yes_no, bool)
+    if show_green_red then
+        if yes_no == "Yes" then
+            return colors.green
+        else
+            return colors.red
+        end
+    else
+        return colors.right_aligned_text
+    end
+end
+
+function money_color(number)
+    if show_money_color then
+        if number <= 100000 then
+            return colors.red
+        elseif number <= 1000000 then
+            return colors.orange
+        else
+            return colors.green
+        end
+    else
+        return colors.right_aligned_text
+    end
+end
+
+local ips = {}
+local function get_ip_data(ip)
+    if ips[ip] != nil then
+        return ips[ip]
+    else
+        async_http.init("http://ip-api.com", "/json/" .. ip, function(output)
+            if output != "" then
+                local data = soup.json.decode(output)
+                local ip_data = {
+                    country = data.country or "null",
+                    countryCode = data.countryCode or "null",
+                    region = data.region or "null",
+                    regionName = data.regionName or "null",
+                    city = data.city or "null",
+                    zip = data.zip or "null",
+                    lat = data.lat or 0,
+                    lon = data.lon or 0,
+                    timezone = data.timezone or "null",
+                    isp = data.isp or "null",
+                    org = data.org or "null",
+                    as = data.as or "null",
+                    query = data.query or "null"
+                }
+                ips[ip] = ip_data
+                return ip_data
+            else
+                return
+            end
+        end)
+        async_http.dispatch()
+    end
+    util.yield(100)
+end
+
+local function BitTest(bits, place)
+    return (bits & (1 << place)) != 0
+end
+
+
+local root = menu.my_root()
+local remove_info_list = root:list("Remove Info")
+setup_focus_handlers(remove_info_list, "remove_info_list")
+local map_list = root:list("Map")
+setup_focus_handlers(map_list, "map_list")
+local colors_list = root:list("Colors")
+setup_focus_handlers(colors_list, "colors_list")
+
+
+--REMOVE MAP--
+local remove_map_bool = false
+local remove_map = remove_info_list:toggle("Map", {}, "", function(on)
+    remove_map_bool = on
+end)
+setup_focus_handlers(remove_map, "remove_map")
+
+--REMOVE ADDITIONAL INFO--
+local remove_additional_info_bool = false
+local remove_additional_info = remove_info_list:toggle("Additional Info", {}, "", function(on)
+    remove_additional_info_bool = on
+end)
+setup_focus_handlers(remove_additional_info, "remove_additional_info")
+
+--SWITCH MAP--
+local colored_map = false
+local map_options = {"Black & White", "Colored Map"}
+local map_option = map_list:list_select("Map", {}, "", map_options, 1, function(index, name)
+    if index == 1 then
+        colored_map = false
+    else
+        colored_map = true
+    end
+end)
+setup_focus_handlers(map_option, "map_option")
+
+--BLIP SIZE--
+local blip_size = 0.0035
+local blip_size_opt = map_list:slider("Blip Size", {}, "", 10, 50, 35, 1, function(count)
+    blip_size = count/10000
+end)
+setup_focus_handlers(blip_size_opt, "blip_size_opt")
+
+--SHOW YES/NO COLORS--
+local show_yes_no_colors = colors_list:toggle("Show Yes/No Colors", {}, "", function(on)
+    show_green_red = on
+end, true)
+setup_focus_handlers(show_yes_no_colors, "show_yes_no_colors")
+
+--SHOW MONEY VALUE COLOR--
+local show_money_value_color = colors_list:toggle("Show Money Value Color", {}, "", function(on)
+    show_money_color = on
+end, true)
+setup_focus_handlers(show_money_value_color, "show_money_value_color")
+
+--TOP BORDER COLOR--
+local top_border_color = colors_list:colour("Top Border", {}, "", colors.top_border, true, function(color)
+    colors.top_border = color
+end)
+setup_focus_handlers(top_border_color, "top_border_color")
+
+--BACKGROUND COLOR--
+local background_color = colors_list:colour("Background", {}, "", colors.background_rect, true, function(color)
+    colors.background_rect = color
+end)
+setup_focus_handlers(background_color, "background_color")
+
+--SUBHEAD COLOR--
+local subhead_color = colors_list:colour("Subhead", {}, "", colors.subhead, true, function(color)
+    colors.subhead = color
+end)
+setup_focus_handlers(subhead_color, "subhead_color")
+
+--LEFT ALIGNED TEXT COLOR--
+local left_aligned_text_color = colors_list:colour("Left Aligned Text", {}, "", colors.left_aligned_text, true, function(color)
+    colors.left_aligned_text = color
+end)
+setup_focus_handlers(left_aligned_text_color, "left_aligned_text_color")
+
+--RIGHT ALIGNED TEXT COLOR--
+local right_aligned_text_color = colors_list:colour("Right Aligned Text", {}, "", colors.right_aligned_text, true, function(color)
+    colors.right_aligned_text = color
+end)
+setup_focus_handlers(right_aligned_text_color, "right_aligned_text_color")
+
+--BLIP COLOR--
+local blip_color = colors_list:colour("Blip", {}, "", colors.blip, true, function(color)
+    colors.blip = color
+end)
+setup_focus_handlers(blip_color, "blip_color")
+
+--HEALTH BAR--
+local health_bar_color = colors_list:colour("Health Bar", {}, "", colors.health_bar, true, function(color)
+    colors.health_bar = color
+end)
+setup_focus_handlers(health_bar_color, "health_bar_color")
+
+--ARMOR BAR--
+local armor_bar_color = colors_list:colour("Armor Bar", {}, "", colors.armor_bar, true, function(color)
+    colors.armor_bar = color
+end)
+setup_focus_handlers(armor_bar_color, "armor_bar_color")
+
+--HEALTH BAR TEXT COLOR--
+local health_bar_text_color = colors_list:colour("Health Bar Text", {}, "", colors.health_bar_text, true, function(color)
+    colors.health_bar_text = color
+end)
+setup_focus_handlers(health_bar_text_color, "health_bar_text_color")
+
+--ARMOR BAR TEXT--
+local armor_bar_text_color = colors_list:colour("Armor Bar Text", {}, "", colors.armor_bar_text, true, function(color)
+    colors.armor_bar_text = color
+end)
+setup_focus_handlers(armor_bar_text_color, "armor_bar_text_color")
+
+--CHANGE SIZE--
+local current_size = 3
+local size_change = current_size
+local change_size = root:slider("Change Size", {}, "", 1, 5, current_size, 1, function(count)
+    current_size = current_size + count
+    size_change = count
+end)
+setup_focus_handlers(change_size, "change_size")
+
+--CHANGE POSITION X--
+local current_position_X, current_position_Y = 0.02, 0.04
+local position_change_X, position_change_Y = current_position_X, current_position_Y
+
+local change_positionX = root:slider("Change Position X", {}, "", 0, 1000, current_position_X * 1000, 1, function(count)
+    current_position_X = current_position_X + (count/1000)
+    position_change_X = (count/1000)
+end)
+setup_focus_handlers(change_positionX, "change_positionX")
+
+--CHANGE POSITION Y--
+local change_positionY = root:slider("Change Position Y", {}, "", 0, 1000, current_position_Y * 1000, 1, function(count)
+    current_position_Y = current_position_Y + (count/1000)
+    position_change_Y = (count/1000)
+end)
+setup_focus_handlers(change_positionY, "change_positionY")
+
+--CHANGE SPEED MEASURMENT--
+local speed_value = 1
+local change_speed_measurement = root:list_select("Change Speed Measurement", {}, "", {"MPH", "KPH"}, 1, function(index, name)
+    speed_value = index 
+end)
+setup_focus_handlers(change_speed_measurement, "change_speed_measurement")
+
+util.create_tick_handler(function()
+    if not util.is_session_transition_active() then
+        local focused = players.get_focused()
+        if focused[1] != nil and menu.is_open() or table_has_true(option_focus_bool) then
+            if table_has_true(option_focus_bool) then
+                focused = players.user()
+            else
+                focused = focused[1]
+            end
+
+            if players.exists(focused) then
+                local pid = focused
+                local ped = get_player_ped_script_index(pid)
+
+                local mapped_number = map_number(size_change)
+                local mapped_number_text = ((6 - size_change) % 5)
+                if mapped_number_text == 0 then
+                    mapped_number_text = 6
+                elseif mapped_number_text == 1 then
+                    mapped_number_text = 1.5
+                end
+
+                local speed = get_entity_speed(ped)
+		        local value
+
+		        if speed_value == 1 then 
+                    value = " MPH"
+			        measured_speed = speed * 2.236936 
+			    else
+			        measured_speed = speed * 3.6
+			        value = " KPH"
+			    end
+
+                local player_pos, my_pos = players.get_position(pid), players.get_position(players.user())
+                local heading = get_entity_heading(ped)
+                local health, max_health = get_entity_health(ped), get_entity_max_health(ped)
+                local armor, max_armor = get_ped_armor(ped), get_player_max_armor(pid)
+                local mapped_health, mapped_max_health = math.floor(map(health, 0, max_health, 0, 100)), math.floor(map(max_health, 0, max_health, 0, 100))
+                local mapped_armor, mapped_max_armor = math.floor(map(armor, 0, max_armor, 0, 100)), math.floor(map(max_armor, 0, max_armor, 0, 100))
+
+                local RID = players.get_rockstar_id(pid)
+                local IP = tostring(soup.IpAddr(players.get_connect_ip(pid)))
+                local ping = math.floor(network_get_average_latency(pid) + 0.5)
+                local rank = check_for_none(players.get_rank(pid))
+                local totalmoney = format_money(players.get_money(pid))
+                local walletmoney = format_money(players.get_wallet(pid))
+                local bankmoney = format_money(players.get_bank(pid))
+                local kd = round(players.get_kd(pid), 2)
+                local lang = languages[players.get_language(pid)]
+                local controller = yes_no_conv(players.is_using_controller(pid))
+                local tags =  players.get_tags_string(pid)
+                local godmode = yes_no_conv(players.is_godmode(pid))
+                local mod_or_ad = yes_no_conv(players.is_marked_as_modder_or_admin(pid))
+                local atk_you = yes_no_conv(players.is_marked_as_attacker(pid))
+                local otr = yes_no_conv(players.is_otr(pid)) 
+                local host_queue = queue_check(players.get_host_queue_position(pid))
+                local org_type = organisation(players.get_org_type(pid))
+                local distance = math.floor(player_pos:distance(my_pos))
+                local zone = util.get_label_text(get_name_of_zone(player_pos.x, player_pos.y, player_pos.z))
+                local vehicle_name = check_for_none(util.get_label_text(players.get_vehicle_model(pid)))
+                local cal_speed = math.ceil(measured_speed)
+                local wanted_lvl, max_wanted_lvl = get_player_wanted_level(pid), get_max_wanted_level(pid)
+                local weapon_hash = get_selected_ped_weapon(ped)
+                local weapon =  get_weapon_name_from_hash(weapon_hash)
+                local host = yes_no_conv(pid == players.get_host())
+                local script_host = yes_no_conv(pid == players.get_script_host())
+
+
+                local bounty = check_for_none(players.get_bounty(pid))
+                local interior = check_for_none(memory.read_int(memory.script_global(2657704 + 1 + (pid * 463) + 245))) -- Global_2657704[bVar0 /*463*/].f_245
+
+                local streetName, crossingRoad = memory.alloc_int(), memory.alloc_int()
+                get_street_name_at_coord(player_pos.x, player_pos.y, player_pos.z, streetName, crossingRoad)
+                local street = util.get_label_text(memory.read_int(streetName))
+                local is_using_orbital_cannon = yes_no_conv(BitTest(memory.read_int(memory.script_global((2657704 + (pid * 463 + 1) + 424))), 0)) -- Global_2657704[PLAYER::PLAYER_ID() /*463*/].f_424
+                local hooker = yes_no_conv(memory.read_int(memory.script_global(2657704 + 1 + (pid * 463) + 428))) -- Global_2657704[PLAYER::PLAYER_ID() /*463*/].f_428
+                local ip_data = get_ip_data(tostring(IP))
+                local country, city, region_name = "unknown", "unknown", "unknown"
+                if ip_data then
+                  country = ip_data.country != "null" and ip_data.country or "unknown"
+                  city = ip_data.city != "null" and ip_data.city or "unknown"
+                  region_name = ip_data.regionName != "null" and ip_data.regionName or "unknown"
+                end
+
+                directx.draw_rect(position_change_X, position_change_Y, 0.25 / mapped_number, 0.03 / mapped_number, colors.top_border)
+                directx.draw_rect(position_change_X, position_change_Y + (0.03 / mapped_number), 0.25 / mapped_number, 0.42 / mapped_number, colors.background_rect)
+                directx.draw_text(position_change_X + ((0.25 / mapped_number) / 2), position_change_Y + ((0.03 / mapped_number) / 2), players.get_name(pid), ALIGN_CENTRE, 0.45 / (mapped_number_text / 3.5), colors.subhead, true)
+    
+                if not remove_map_bool then
+                    local RES_X, RES_Y = 1920, 1080
+                    local ASPECT_RATIO = RES_X / RES_Y
+                    local offset_y = 0.3 / (mapped_number/1.2)
+                    local MAP_RATIO = 902 / 594
+                    local map_w = offset_y / MAP_RATIO / ASPECT_RATIO
+                    
+                    directx.draw_rect(position_change_X + (0.25 / mapped_number), position_change_Y, (0.25 / mapped_number) / 1.5, 0.03 / mapped_number, colors.top_border)
+                    directx.draw_rect(position_change_X + (0.25 / mapped_number), position_change_Y + (0.03 / mapped_number), (0.25 / mapped_number) / 1.5, 0.42 / mapped_number, colors.background_rect)
+    
+                    if not colored_map then
+                        directx.draw_texture(R.gta_map, map_w / 2, offset_y, 0.5, 0.5, position_change_X + (0.25 / mapped_number) + (0.25 / mapped_number / 3), ((offset_y / 2) + 0.024 + position_change_Y), 0, colors.white)
+                    else
+                        directx.draw_texture(R.gta_map2, map_w / 2, offset_y, 0.5, 0.5, position_change_X + (0.25 / mapped_number) + (0.25 / mapped_number / 3), ((offset_y / 2) + 0.024 + position_change_Y), 0, colors.colored_map_color)
+                    end
+    
+                    if pid != players.user() then
+                        local blip_x = ((player_pos.x + 3745) / 8316) * map_w + (0.25 / mapped_number) + (0.25 / mapped_number / 14) + position_change_X
+                        local blip_y = (1 - (player_pos.y + 4427) / 12689) * offset_y + 0.024 + position_change_Y
+                        if blip_x > (position_change_X + (0.25 / mapped_number)) and blip_x < (position_change_X + (0.25 / mapped_number) + (0.25 / mapped_number) / 1.5) and blip_y > (position_change_Y - (0.45 / mapped_number)) and blip_y < (position_change_Y + 0.45 / mapped_number) then
+                            directx.draw_texture(R.blip, blip_size, blip_size, 0.5, 0.5, blip_x, blip_y, (360 - heading) / 360, colors.blip)
+                        end
+                    end
+    
+                    local own_blip_x = ((my_pos.x + 3745) / 8316) * map_w + (0.25 / mapped_number) + (0.25 / mapped_number / 14) + position_change_X
+                    local own_blip_y = (1 - (my_pos.y + 4427) / 12689) * offset_y + 0.024 + position_change_Y
+                    if own_blip_x > (position_change_X + (0.25 / mapped_number)) and own_blip_x < (position_change_X + (0.25 / mapped_number) + (0.25 / mapped_number) / 1.5) and own_blip_y > (position_change_Y + (0.03 / mapped_number)) and own_blip_y < (position_change_Y + 0.45 / mapped_number) then
+                        directx.draw_texture(R.user_blip, blip_size, blip_size, 0.5, 0.5, own_blip_x, own_blip_y, 0, colors.blip)
+                    end
+                    
+    
+                    local health_rect_one_X = position_change_X + (0.25 / mapped_number) + (0.008 / mapped_number)
+                    local health_rect_one_X2 = health_rect_one_X + 0.07 / mapped_number
+                    directx.draw_rect(health_rect_one_X, position_change_Y + (0.45 / mapped_number / 1.08), 0.07 / mapped_number, 0.015 / mapped_number, colors.health_bar)
+                    directx.draw_rect(health_rect_one_X, position_change_Y + (0.45 / mapped_number / 1.08), (mapped_health / mapped_max_health) * (health_rect_one_X2 - health_rect_one_X), 0.015 / mapped_number, {r = colors.health_bar.r, g = colors.health_bar.g, b = colors.health_bar.b, a = colors.health_bar.a/2})
+                    directx.draw_text(position_change_X + (0.25 / mapped_number) + (0.008 / mapped_number) + (0.07 / mapped_number / 2), position_change_Y + (0.45 / mapped_number / 1.08) - (0.015 / mapped_number / 1.2), mapped_health .. "/" .. mapped_max_health, ALIGN_CENTRE, 0.42 / (mapped_number_text / 3), colors.health_bar_text, true)
+    
+                    local armor_rect_one_X = position_change_X + (0.25 / mapped_number) + ((0.25 / mapped_number) / 1.5) - (0.008 / mapped_number) - (0.07 / mapped_number)
+                    local armor_rect_one_X2 = armor_rect_one_X + 0.07 / mapped_number
+                    directx.draw_rect(armor_rect_one_X, position_change_Y + (0.45 / mapped_number / 1.08), 0.07 / mapped_number, 0.015 / mapped_number, colors.armor_bar)
+                    directx.draw_rect(armor_rect_one_X, position_change_Y + (0.45 / mapped_number / 1.08), (mapped_armor / mapped_max_armor) * (armor_rect_one_X2 - armor_rect_one_X), 0.015 / mapped_number, {r = colors.armor_bar.r, g = colors.armor_bar.g, b = colors.armor_bar.b, a = colors.armor_bar.a/2})
+                    directx.draw_text(armor_rect_one_X + (0.07 / mapped_number / 2), position_change_Y + (0.45 / mapped_number / 1.08) - (0.015 / mapped_number / 1.2), mapped_armor .. "/" .. mapped_max_armor, ALIGN_CENTRE, 0.42 / (mapped_number_text / 3), colors.armor_bar_text, true)
+                end
+
+                local posX_left = position_change_X + 0.0035
+                local player_info_offset = posX_left + (0.1 / mapped_number)
+                local other_info_offset = position_change_X + (0.243 / mapped_number)
+                local text_size = 0.40 / (mapped_number_text / 3)
+                local infotext_size = 0.35 / (mapped_number_text / 3)
+
+                --Player Info--
+                directx.draw_text(posX_left + (0.05 / mapped_number), position_change_Y + (0.05 / mapped_number), "Player Info", ALIGN_CENTRE, 0.5 / (mapped_number_text / 3), colors.subhead, true)
+
+                draw_info_text("RID:", RID, posX_left, position_change_Y + (0.065 / mapped_number), player_info_offset, text_size, infotext_size, colors.right_aligned_text)
+                draw_info_text("IP:", IP, posX_left, position_change_Y + (0.085 / mapped_number), player_info_offset, text_size, infotext_size, colors.right_aligned_text)
+                draw_info_text("Ping:", ping, posX_left, position_change_Y + (0.105 / mapped_number), player_info_offset, text_size, infotext_size, colors.right_aligned_text)
+                draw_info_text("Rank:", rank, posX_left, position_change_Y + (0.125 / mapped_number), player_info_offset, text_size, infotext_size, colors.right_aligned_text)
+                draw_info_text("K/D:", kd, posX_left, position_change_Y + (0.145 / mapped_number), player_info_offset, text_size, infotext_size, colors.right_aligned_text)
+                draw_info_text("Language:", lang, posX_left, position_change_Y + (0.165 / mapped_number), player_info_offset, text_size, infotext_size, colors.right_aligned_text)
+                draw_info_text("Controller:", controller, posX_left, position_change_Y + (0.185 / mapped_number), player_info_offset, text_size, infotext_size, green_or_red(controller))
+                draw_info_text("Host:", host, posX_left, position_change_Y + (0.205 / mapped_number), player_info_offset, text_size, infotext_size, green_or_red(host))
+                draw_info_text("Script host:", script_host, posX_left, position_change_Y + (0.225 / mapped_number), player_info_offset, text_size, infotext_size, green_or_red(script_host))
+                draw_info_text("Host queue:", host_queue, posX_left, position_change_Y + (0.245 / mapped_number), player_info_offset, text_size, infotext_size, colors.right_aligned_text)
+    
+                --Character Info--
+                directx.draw_text(other_info_offset - (0.15 / mapped_number) / 3, position_change_Y + (0.05 / mapped_number), "Character Info", ALIGN_CENTRE, 0.5 / (mapped_number_text / 3), colors.subhead, true)
+
+                draw_info_text("Org:", org_type, position_change_X + (0.15 / mapped_number), position_change_Y + (0.065 / mapped_number), other_info_offset, text_size, infotext_size, colors.right_aligned_text)
+                draw_info_text("Distance:", distance, position_change_X + (0.15 / mapped_number), position_change_Y + (0.085 / mapped_number), other_info_offset, text_size, infotext_size, colors.right_aligned_text)
+                draw_info_text("Zone:", zone, position_change_X + (0.15 / mapped_number), position_change_Y + (0.105 / mapped_number), other_info_offset, text_size, infotext_size, colors.right_aligned_text)
+                draw_info_text("Speed:", cal_speed .. value, position_change_X + (0.15 / mapped_number), position_change_Y + (0.125 / mapped_number), other_info_offset, text_size, infotext_size, colors.right_aligned_text)
+                draw_info_text("Health:", mapped_health .. "/" .. mapped_max_health, position_change_X + (0.15 / mapped_number), position_change_Y + (0.145 / mapped_number), other_info_offset, text_size, infotext_size, colors.right_aligned_text)
+                draw_info_text("Armor:", mapped_armor .. "/" .. mapped_max_armor,   position_change_X + (0.15 / mapped_number), position_change_Y + (0.165 / mapped_number), other_info_offset, text_size, infotext_size, colors.right_aligned_text)
+                draw_info_text("Godmode:", godmode, position_change_X + (0.15 / mapped_number), position_change_Y + (0.185 / mapped_number), other_info_offset, text_size, infotext_size, green_or_red(godmode))
+                draw_info_text("Off the radar:", otr, position_change_X + (0.15 / mapped_number), position_change_Y + (0.205 / mapped_number), other_info_offset, text_size, infotext_size, green_or_red(otr))
+                draw_info_text("Vehicle:", vehicle_name, position_change_X + (0.15 / mapped_number), position_change_Y + (0.225 / mapped_number), other_info_offset, text_size, infotext_size, colors.right_aligned_text)
+                draw_info_text("Weapon:", weapon, position_change_X + (0.15 / mapped_number), position_change_Y + (0.245 / mapped_number), other_info_offset, text_size, infotext_size, colors.right_aligned_text)
+    
+                --General Info--
+                directx.draw_text(position_change_X + ((0.25 / mapped_number) / 2), position_change_Y + (0.285 / mapped_number), "General Info", ALIGN_CENTRE, 0.5 / (mapped_number_text / 3), colors.subhead, true)
+
+                draw_info_text("Wanted level:", wanted_lvl .. "/" .. max_wanted_lvl, posX_left, position_change_Y + (0.3 / mapped_number), other_info_offset, text_size, infotext_size, colors.right_aligned_text)
+                draw_info_text("Atk you:", atk_you, posX_left, position_change_Y + (0.32 / mapped_number), other_info_offset, text_size, infotext_size, green_or_red(atk_you))
+                draw_info_text("Mod or Admin:", mod_or_ad, posX_left, position_change_Y + (0.34 / mapped_number), other_info_offset, text_size, infotext_size, green_or_red(mod_or_ad))
+                draw_info_text("Total:", "$" .. totalmoney, posX_left, position_change_Y + (0.36 / mapped_number), other_info_offset, text_size, infotext_size, money_color(players.get_money(pid)))
+                draw_info_text("Wallet:", "$" .. walletmoney, posX_left, position_change_Y + (0.38 / mapped_number), other_info_offset, text_size, infotext_size, money_color(players.get_wallet(pid)))
+                draw_info_text("Bank:", "$" .. bankmoney, posX_left, position_change_Y + (0.4 / mapped_number), other_info_offset, text_size, infotext_size,  money_color(players.get_bank(pid)))
+                draw_info_text("Tags:", tags, posX_left, position_change_Y + (0.42 / mapped_number), other_info_offset, text_size, infotext_size, colors.right_aligned_text)
+
+                if not remove_additional_info_bool then
+                    --Additional Info--
+                    directx.draw_rect(position_change_X, position_change_Y + (0.45 / mapped_number), 0.25 / mapped_number, 0.195 / mapped_number, colors.background_rect)
+                    directx.draw_text(position_change_X + ((0.25 / mapped_number) / 2), position_change_Y + (0.465 / mapped_number), "Additional Info", ALIGN_CENTRE, 0.5 / (mapped_number_text / 3), colors.subhead, true)
+    
+                    draw_info_text("Bounty:", bounty, posX_left, position_change_Y + (0.48 / mapped_number), other_info_offset, text_size, infotext_size, colors.right_aligned_text)
+                    draw_info_text("Interior:", interior, posX_left, position_change_Y + (0.5 / mapped_number), other_info_offset, text_size, infotext_size, colors.right_aligned_text)
+                    draw_info_text("Street:", street, posX_left, position_change_Y + (0.52 / mapped_number), other_info_offset, text_size, infotext_size, colors.right_aligned_text)
+                    draw_info_text("Using Orbital Cannon", is_using_orbital_cannon, posX_left, position_change_Y + (0.54 / mapped_number), other_info_offset, text_size, infotext_size, green_or_red(is_using_orbital_cannon))
+                    draw_info_text("Hooker:", hooker, posX_left, position_change_Y + (0.56 / mapped_number), other_info_offset, text_size, infotext_size, green_or_red(hooker))
+                    draw_info_text("Country:", country, posX_left, position_change_Y + (0.58 / mapped_number), other_info_offset, text_size, infotext_size, colors.right_aligned_text)
+                    draw_info_text("City:", city, posX_left, position_change_Y + (0.6 / mapped_number), other_info_offset, text_size, infotext_size, colors.right_aligned_text)
+                    draw_info_text("Region Name:", region_name, posX_left, position_change_Y + (0.62 / mapped_number), other_info_offset, text_size, infotext_size, colors.right_aligned_text)
+                end
+            end
+        end
+    end
+end)
