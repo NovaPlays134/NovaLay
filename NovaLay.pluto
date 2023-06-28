@@ -257,36 +257,13 @@ end
 
 local ips = {}
 local function get_ip_data(ip)
-    if ips[ip] != nil then
-        return ips[ip]
-    else
-        async_http.init("http://ip-api.com", "/json/" .. ip, function(output)
-            if output != "" then
-                local data = soup.json.decode(output)
-                local ip_data = {
-                    country = data.country or "null",
-                    countryCode = data.countryCode or "null",
-                    region = data.region or "null",
-                    regionName = data.regionName or "null",
-                    city = data.city or "null",
-                    zip = data.zip or "null",
-                    lat = data.lat or 0,
-                    lon = data.lon or 0,
-                    timezone = data.timezone or "null",
-                    isp = data.isp or "null",
-                    org = data.org or "null",
-                    as = data.as or "null",
-                    query = data.query or "null"
-                }
-                ips[ip] = ip_data
-                return ip_data
-            else
-                return
-            end
-        end)
-        async_http.dispatch()
+    local data = {city = "unknown", state = "unknown", country = "unknown"}
+    if (loc := soup.netIntel.getLocationByIp(ip)):isValid() then
+        data.city = loc.city
+        data.state = loc.state
+        data.country = soup.getCountryName(loc.country_code, "EN")
     end
-    util.yield(100)
+    return data
 end
 
 local function BitTest(bits, place)
@@ -499,7 +476,7 @@ util.create_tick_handler(function()
                 local host_queue = queue_check(players.get_host_queue_position(pid))
                 local org_type = organisation(players.get_org_type(pid))
                 local distance = math.floor(player_pos:distance(my_pos))
-                local zone = util.get_label_text(get_name_of_zone(player_pos.x, player_pos.y, player_pos.z))
+                local zone = get_name_of_zone(player_pos.x, player_pos.y, player_pos.z)
                 local vehicle_name = check_for_none(util.get_label_text(players.get_vehicle_model(pid)))
                 local cal_speed = math.ceil(measured_speed)
                 local wanted_lvl, max_wanted_lvl = get_player_wanted_level(pid), get_max_wanted_level(pid)
@@ -518,12 +495,6 @@ util.create_tick_handler(function()
                 local is_using_orbital_cannon = yes_no_conv(BitTest(memory.read_int(memory.script_global((2657704 + (pid * 463 + 1) + 424))), 0)) -- Global_2657704[PLAYER::PLAYER_ID() /*463*/].f_424
                 local hooker = yes_no_conv(memory.read_int(memory.script_global(2657704 + 1 + (pid * 463) + 428))) -- Global_2657704[PLAYER::PLAYER_ID() /*463*/].f_428
                 local ip_data = get_ip_data(tostring(IP))
-                local country, city, region_name = "unknown", "unknown", "unknown"
-                if ip_data then
-                  country = ip_data.country != "null" and ip_data.country or "unknown"
-                  city = ip_data.city != "null" and ip_data.city or "unknown"
-                  region_name = ip_data.regionName != "null" and ip_data.regionName or "unknown"
-                end
 
                 directx.draw_rect(position_change_X, position_change_Y, 0.25 / mapped_number, 0.03 / mapped_number, colors.top_border)
                 directx.draw_rect(position_change_X, position_change_Y + (0.03 / mapped_number), 0.25 / mapped_number, 0.42 / mapped_number, colors.background_rect)
@@ -628,9 +599,9 @@ util.create_tick_handler(function()
                     draw_info_text("Street:", street, posX_left, position_change_Y + (0.52 / mapped_number), other_info_offset, text_size, infotext_size, colors.right_aligned_text)
                     draw_info_text("Using Orbital Cannon", is_using_orbital_cannon, posX_left, position_change_Y + (0.54 / mapped_number), other_info_offset, text_size, infotext_size, green_or_red(is_using_orbital_cannon))
                     draw_info_text("Hooker:", hooker, posX_left, position_change_Y + (0.56 / mapped_number), other_info_offset, text_size, infotext_size, green_or_red(hooker))
-                    draw_info_text("Country:", country, posX_left, position_change_Y + (0.58 / mapped_number), other_info_offset, text_size, infotext_size, colors.right_aligned_text)
-                    draw_info_text("City:", city, posX_left, position_change_Y + (0.6 / mapped_number), other_info_offset, text_size, infotext_size, colors.right_aligned_text)
-                    draw_info_text("Region Name:", region_name, posX_left, position_change_Y + (0.62 / mapped_number), other_info_offset, text_size, infotext_size, colors.right_aligned_text)
+                    draw_info_text("Country:", ip_data.country, posX_left, position_change_Y + (0.58 / mapped_number), other_info_offset, text_size, infotext_size, colors.right_aligned_text)
+                    draw_info_text("City:", ip_data.city, posX_left, position_change_Y + (0.6 / mapped_number), other_info_offset, text_size, infotext_size, colors.right_aligned_text)
+                    draw_info_text("Region Name:", ip_data.state, posX_left, position_change_Y + (0.62 / mapped_number), other_info_offset, text_size, infotext_size, colors.right_aligned_text)
                 end
             end
         end
