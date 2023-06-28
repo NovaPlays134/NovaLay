@@ -257,10 +257,12 @@ end
 
 local function get_ip_data(ip)
     local data = {city = "unknown", state = "unknown", country = "unknown"}
-    if (loc := soup.netIntel.getLocationByIp(ip)):isValid() then
-        data.city = loc.city
-        data.state = loc.state
-        data.country = soup.getCountryName(loc.country_code, "EN")
+    if util.is_soup_netintel_inited() then
+        if (loc := soup.netIntel.getLocationByIp(ip)):isValid() then
+            data.city = loc.city
+            data.state = loc.state
+            data.country = soup.getCountryName(loc.country_code, "EN")
+        end
     end
     return data
 end
