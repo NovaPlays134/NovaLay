@@ -11,7 +11,6 @@
 --[[int]] function get_ped_armor(--[[Ped (int)]] ped)native_invoker.begin_call()native_invoker.push_arg_int(ped)native_invoker.end_call_2(0x9483AF821605B1D8)return native_invoker.get_return_value_int()end
 --[[int]] function get_player_max_armor(--[[Player (int)]] player)native_invoker.begin_call()native_invoker.push_arg_int(player)native_invoker.end_call_2(0x92659B4CE1863CB3)return native_invoker.get_return_value_int()end
 --[[int]] local function get_player_wanted_level(--[[Player (int)]] player)native_invoker.begin_call()native_invoker.push_arg_int(player)native_invoker.end_call_2(0xE28E54788CE8F12D)return native_invoker.get_return_value_int()end
---[[int]] local function get_max_wanted_level()native_invoker.begin_call()native_invoker.end_call_2(0x462E0DB9B137DC5F)return native_invoker.get_return_value_int()end
 --[[float]] local function get_entity_speed(--[[Entity (int)]] entity)native_invoker.begin_call()native_invoker.push_arg_int(entity)native_invoker.end_call_2(0xD5037BA82E12416F)return native_invoker.get_return_value_float()end
 --[[float]] local function network_get_average_latency(--[[Player (int)]] player)native_invoker.begin_call()native_invoker.push_arg_int(player)native_invoker.end_call_2(0xD414BE129BB81B32)return native_invoker.get_return_value_float()end
 --[[string]] local function get_name_of_zone(--[[float]] x,--[[float]] y,--[[float]] z)native_invoker.begin_call()native_invoker.push_arg_float(x)native_invoker.push_arg_float(y)native_invoker.push_arg_float(z)native_invoker.end_call_2(0xCD90657D4C30E1CA)return native_invoker.get_return_value_string()end
@@ -151,9 +150,6 @@ function map(value, inputmin, inputmax, outputmin, outputmax)
 end
 
 function draw_info_text(text, infotext, posX, posY, posX2, size1, size2, info_text_clr)
-    local first_text_width, first_text_height = directx.get_text_size("Org:", size1)
-
-    posX = posX
     local draw_text = directx.draw_text(posX, posY, text, ALIGN_TOP_LEFT, size1, colors.left_aligned_text, true)
 
     local second_text_width, second_text_height = directx.get_text_size(text, size1)
@@ -271,6 +267,23 @@ local function BitTest(bits, place)
     return (bits & (1 << place)) != 0
 end
 
+local function scale_text(posX, text, size, posX2, text2, size2)
+    local width, height = directx.get_text_size(text, size)
+    local LposX = posX - width
+
+    local width2, height2 = directx.get_text_size(text2, size2)
+    local RposX = posX2 + width2
+    if LposX < RposX then
+        local i = 0.001
+        while LposX < (RposX + 0.002) do
+            width, height = directx.get_text_size(text, size - i)
+            LposX = posX - width
+            i = i + 0.001
+        end
+        return size - i
+    end
+    return size
+end
 
 local root = menu.my_root()
 local remove_info_list = root:list("Remove Info")
@@ -477,10 +490,10 @@ util.create_tick_handler(function()
                 local host_queue = queue_check(players.get_host_queue_position(pid))
                 local org_type = organisation(players.get_org_type(pid))
                 local distance = math.floor(player_pos:distance(my_pos))
-                local zone = get_name_of_zone(player_pos.x, player_pos.y, player_pos.z)
+                local zone = util.get_label_text(get_name_of_zone(player_pos.x, player_pos.y, player_pos.z))
                 local vehicle_name = check_for_none(util.get_label_text(players.get_vehicle_model(pid)))
                 local cal_speed = math.ceil(measured_speed)
-                local wanted_lvl, max_wanted_lvl = get_player_wanted_level(pid), get_max_wanted_level(pid)
+                local wanted_lvl = get_player_wanted_level(pid)
                 local weapon_hash = get_selected_ped_weapon(ped)
                 local weapon =  get_weapon_name_from_hash(weapon_hash)
                 local host = yes_no_conv(pid == players.get_host())
@@ -570,7 +583,7 @@ util.create_tick_handler(function()
 
                 draw_info_text("Org:", org_type, position_change_X + (0.15 / mapped_number), position_change_Y + (0.065 / mapped_number), other_info_offset, text_size, infotext_size, colors.right_aligned_text)
                 draw_info_text("Distance:", distance, position_change_X + (0.15 / mapped_number), position_change_Y + (0.085 / mapped_number), other_info_offset, text_size, infotext_size, colors.right_aligned_text)
-                draw_info_text("Zone:", zone, position_change_X + (0.15 / mapped_number), position_change_Y + (0.105 / mapped_number), other_info_offset, text_size, infotext_size, colors.right_aligned_text)
+                draw_info_text("Zone:", zone, position_change_X + (0.15 / mapped_number), position_change_Y + (0.105 / mapped_number), other_info_offset, text_size, scale_text(other_info_offset, zone, infotext_size, position_change_X + (0.15 / mapped_number), "Zone:", text_size), colors.right_aligned_text)
                 draw_info_text("Speed:", cal_speed .. value, position_change_X + (0.15 / mapped_number), position_change_Y + (0.125 / mapped_number), other_info_offset, text_size, infotext_size, colors.right_aligned_text)
                 draw_info_text("Health:", mapped_health .. "/" .. mapped_max_health, position_change_X + (0.15 / mapped_number), position_change_Y + (0.145 / mapped_number), other_info_offset, text_size, infotext_size, colors.right_aligned_text)
                 draw_info_text("Armor:", mapped_armor .. "/" .. mapped_max_armor,   position_change_X + (0.15 / mapped_number), position_change_Y + (0.165 / mapped_number), other_info_offset, text_size, infotext_size, colors.right_aligned_text)
@@ -582,7 +595,7 @@ util.create_tick_handler(function()
                 --General Info--
                 directx.draw_text(position_change_X + ((0.25 / mapped_number) / 2), position_change_Y + (0.285 / mapped_number), "General Info", ALIGN_CENTRE, 0.5 / (mapped_number_text / 3), colors.subhead, true)
 
-                draw_info_text("Wanted level:", wanted_lvl .. "/" .. max_wanted_lvl, posX_left, position_change_Y + (0.3 / mapped_number), other_info_offset, text_size, infotext_size, colors.right_aligned_text)
+                draw_info_text("Wanted level:", wanted_lvl .. "/5", posX_left, position_change_Y + (0.3 / mapped_number), other_info_offset, text_size, infotext_size, colors.right_aligned_text)
                 draw_info_text("Atk you:", atk_you, posX_left, position_change_Y + (0.32 / mapped_number), other_info_offset, text_size, infotext_size, green_or_red(atk_you))
                 draw_info_text("Mod or Admin:", mod_or_ad, posX_left, position_change_Y + (0.34 / mapped_number), other_info_offset, text_size, infotext_size, green_or_red(mod_or_ad))
                 draw_info_text("Total:", "$" .. totalmoney, posX_left, position_change_Y + (0.36 / mapped_number), other_info_offset, text_size, infotext_size, money_color(players.get_money(pid)))
